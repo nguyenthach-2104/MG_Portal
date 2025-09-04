@@ -1,1 +1,123 @@
-hello
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - MG Bình Dương</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; margin: 0; }
+        .navbar-menu {
+            transition: max-height 0.3s ease-out; /* Hiệu ứng đóng/mở menu trên mobile */
+            overflow: hidden;
+            max-height: 0; /* Mặc định ẩn trên mobile */
+        }
+        .navbar-menu.is-active {
+            max-height: 500px; /* Tăng chiều cao để hiện menu */
+        }
+        @media (min-width: 768px) { /* Trên màn hình lớn, luôn hiện menu */
+            .navbar-menu {
+                max-height: none !important;
+            }
+        }
+
+        /* Thêm một số style cho hiệu ứng hover nhẹ */
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link:hover {
+            transform: translateY(-2px);
+            color: #ef4444; /* Màu đỏ khi hover */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white shadow-md p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="homepage.html" class="text-2xl font-bold text-red-600">MG<span class="text-gray-700">Portal</span></a>
+
+            <div class="md:hidden">
+                <button id="navbar-burger" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="navbar-menu" class="navbar-menu md:flex md:items-center md:space-x-8 mt-4 md:mt-0 w-full md:w-auto">
+                <a href="crm.html" class="nav-link block md:inline-block text-gray-700 hover:text-red-600 font-medium py-2 md:py-0 px-4">
+                    Khách hàng (CRM)
+                </a>
+                <a href="khoxe.html" class="nav-link block md:inline-block text-gray-700 hover:text-red-600 font-medium py-2 md:py-0 px-4">
+                    Kho xe
+                </a>
+                <a href="ghepxe.html" class="nav-link block md:inline-block text-gray-700 hover:text-red-600 font-medium py-2 md:py-0 px-4">
+                    Ghép xe
+                </a>
+                <a href="vanban.html" class="nav-link block md:inline-block text-gray-700 hover:text-red-600 font-medium py-2 md:py-0 px-4">
+                    Văn bản
+                </a>
+                <a href="hoatdong.html" class="nav-link block md:inline-block text-gray-700 hover:text-red-600 font-medium py-2 md:py-0 px-4">
+                    Hoạt động
+                </a>
+                
+                <button id="logout-button" class="mt-4 md:mt-0 block md:inline-block bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors w-full md:w-auto">
+                    Đăng xuất
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-6 mt-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Chào mừng đến với MG Bình Dương Portal!</h1>
+        <p class="text-gray-600 text-lg">Đây là trang chủ của bạn. Các chức năng chính có thể được truy cập từ menu điều hướng.</p>
+        
+        <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold text-gray-700 mb-3">Thông tin người dùng:</h2>
+            <p class="text-gray-600">Xin chào, <span id="user-full-name" class="font-medium text-red-600">Bạn</span>!</p>
+            <p class="text-gray-600">Phòng ban: <span id="user-department" class="font-medium">Chưa xác định</span></p>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navbarBurger = document.getElementById('navbar-burger');
+            const navbarMenu = document.getElementById('navbar-menu');
+            const logoutButton = document.getElementById('logout-button');
+            const userFullNameSpan = document.getElementById('user-full-name');
+            const userDepartmentSpan = document.getElementById('user-department');
+
+            // --- Logic cho menu mobile ---
+            navbarBurger.addEventListener('click', () => {
+                navbarMenu.classList.toggle('is-active');
+            });
+
+            // --- Logic hiển thị thông tin người dùng ---
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            if (loggedInUser) {
+                try {
+                    const userData = JSON.parse(loggedInUser);
+                    userFullNameSpan.textContent = userData.fullName || 'Bạn';
+                    userDepartmentSpan.textContent = userData.department || 'Chưa xác định';
+                } catch (e) {
+                    console.error("Lỗi khi parse thông tin người dùng từ sessionStorage:", e);
+                    // Nếu lỗi, vẫn hiển thị thông tin mặc định
+                }
+            } else {
+                // Nếu không có thông tin đăng nhập, chuyển hướng về trang login
+                window.location.href = 'index.html'; 
+            }
+
+            // --- Logic Đăng xuất ---
+            logoutButton.addEventListener('click', () => {
+                sessionStorage.removeItem('loggedInUser'); // Xóa thông tin đăng nhập
+                window.location.href = 'index.html'; // Chuyển hướng về trang đăng nhập
+            });
+        });
+    </script>
+</body>
+</html>
