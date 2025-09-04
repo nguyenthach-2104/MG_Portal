@@ -8,11 +8,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <script src="config.js"></script>
+    
     <style>
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
-        .button-loading::after { content: ''; display: inline-block; width: 16px; height: 16px; border: 2px solid transparent; border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin-left: 10px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .button-loading::after { 
+            content: ''; 
+            display: inline-block; 
+            width: 16px; 
+            height: 16px; 
+            border: 2px solid transparent; 
+            border-top-color: white; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+            margin-left: 10px; 
+        }
+        @keyframes spin { 
+            to { transform: rotate(360deg); } 
+        }
     </style>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
@@ -36,7 +53,9 @@
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
                         <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500" required>
                     </div>
-                    <button type="submit" id="login-button" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center h-10 transition-colors">Đăng nhập</button>
+                    <button type="submit" id="login-button" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center h-10 transition-colors">
+                        Đăng nhập
+                    </button>
                     <div class="text-center mt-4">
                         <a href="#" id="forgot-password-link" class="text-sm text-blue-600 hover:underline">Quên mật khẩu?</a>
                     </div>
@@ -67,28 +86,26 @@
 
         function setLoading(button, isLoading) {
             button.disabled = isLoading;
-            if (isLoading) { button.classList.add('button-loading'); } 
-            else { button.classList.remove('button-loading'); }
+            if (isLoading) {
+                button.classList.add('button-loading');
+            } else {
+                button.classList.remove('button-loading');
+            }
         }
 
         async function handleApiRequest(payload, button) {
-            console.log("Bắt đầu handleApiRequest với payload:", payload); // NEW LOG
-
             if (typeof APPS_SCRIPT_URL === 'undefined' || !APPS_SCRIPT_URL) {
-                console.error("LỖI CẤU HÌNH: Biến APPS_SCRIPT_URL không được tìm thấy. Kiểm tra file config.js."); // NEW LOG
-                showMessage('Lỗi cấu hình: Không tìm thấy APPS_SCRIPT_URL.', false);
+                showMessage('Lỗi cấu hình hệ thống. Vui lòng liên hệ Admin.', false);
                 return null;
             }
             if (button) setLoading(button, true);
             
             return new Promise((resolve, reject) => {
-                let script = document.createElement('script');
                 const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                
-                // NEW LOG: Thêm cơ chế timeout để bắt lỗi treo
+                const script = document.createElement('script');
+
                 const timeoutId = setTimeout(() => {
-                    console.error("LỖI MẠNG: Yêu cầu tới Apps Script bị timeout (quá 15 giây). Có thể script bị lỗi hoặc quyền truy cập sai.");
-                    showMessage('Lỗi: Yêu cầu tới server bị treo. Vui lòng kiểm tra lại cấu hình API.', false);
+                    showMessage('Lỗi: Yêu cầu tới server bị treo. Vui lòng thử lại.', false);
                     cleanup();
                     reject(new Error('Request timed out'));
                 }, 15000); // 15 giây
@@ -103,22 +120,18 @@
                 };
 
                 window[callbackName] = (data) => {
-                    console.log("Phản hồi nhận được từ Apps Script:", data); // NEW LOG
                     cleanup();
                     resolve(data);
                 };
 
-                script.onerror = (err) => {
-                    console.error("LỖI MẠNG: Lỗi khi tải script từ Apps Script. Kiểm tra đường link API và kết nối mạng.", err); // NEW LOG
-                    showMessage('Lỗi mạng hoặc URL API không hợp lệ.', false);
+                script.onerror = () => {
+                    showMessage('Lỗi mạng hoặc URL API không hợp lệ. Vui lòng kiểm tra lại.', false);
                     cleanup();
                     reject(new Error('JSONP request failed'));
                 };
 
                 const params = new URLSearchParams({ ...payload, callback: callbackName });
                 script.src = `${APPS_SCRIPT_URL}?${params.toString()}`;
-                
-                console.log("Đang gửi yêu cầu tới URL:", script.src); // NEW LOG
                 document.body.appendChild(script);
             });
         }
@@ -128,6 +141,7 @@
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            
             try {
                 const payload = { action: 'login', username, password };
                 const result = await handleApiRequest(payload, loginButton);
@@ -137,12 +151,13 @@
                         fullName: result.fullName,
                         department: result.department
                     }));
+                    // Chuyển hướng đến trang chủ khi thành công
                     window.location.href = 'homepage.html';
                 } else if (result) {
                     showMessage(result.message || 'Đăng nhập thất bại.', false);
                 }
             } catch (error) {
-                console.error("Đã xảy ra lỗi trong quá trình đăng nhập:", error);
+                // Lỗi đã được xử lý bên trong handleApiRequest, không cần log thêm
             }
         });
 
@@ -154,6 +169,7 @@
                 return;
             }
             showMessage('Đang gửi yêu cầu, vui lòng chờ...');
+            
             try {
                 const payload = { action: 'forgotPassword', username };
                 const result = await handleApiRequest(payload, null);
@@ -164,7 +180,7 @@
                     showMessage(result.message || 'Yêu cầu thất bại.', false);
                 }
             } catch (error) {
-                console.error("Đã xảy ra lỗi trong quá trình quên mật khẩu:", error);
+                // Lỗi đã được xử lý bên trong handleApiRequest
             }
         });
     </script>
