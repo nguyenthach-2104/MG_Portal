@@ -33,6 +33,10 @@
             cursor: not-allowed;
             opacity: 0.8;
         }
+        .clickable-row:hover {
+            background-color: #f9fafb;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -171,7 +175,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Logic Menu & User Info (Copy từ homepage.html) ---
+            // --- Logic Menu & User Info ---
             const burgerButton = document.getElementById('burger-button');
             const mobileMenuContainer = document.getElementById('mobile-menu-container');
             const mobileMenu = document.getElementById('mobile-menu');
@@ -220,6 +224,7 @@
             const closeAddModalBtn = document.getElementById('close-add-modal-btn');
             const addNewRowBtn = document.getElementById('add-new-row-btn');
             const submitAddBtn = document.getElementById('submit-add-btn');
+            const filterBtn = document.getElementById('filter-btn');
 
             const openModal = (modalEl) => {
                 modalEl.classList.remove('hidden');
@@ -240,8 +245,8 @@
             closeAddModalBtn.addEventListener('click', () => closeModal(addModal));
             addNewRowBtn.addEventListener('click', addNewCustomerRow);
             submitAddBtn.addEventListener('click', handleAddCustomers);
+            filterBtn.addEventListener('click', handleFilterCustomers);
 
-            // Gán giá trị mặc định cho date picker
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('start-date').value = today;
             document.getElementById('end-date').value = today;
@@ -281,7 +286,8 @@
                 button.innerHTML = defaultHtml;
             }
         }
-
+        
+        // SỬA LỖI: Bỏ 'no-cors' và xử lý response
         async function handleAddCustomers() {
             const submitBtn = document.getElementById('submit-add-btn');
             const originalBtnHtml = submitBtn.innerHTML;
@@ -290,15 +296,12 @@
             const rowsContainer = document.getElementById('add-customer-rows');
             const customerRows = rowsContainer.querySelectorAll('.grid');
             const newCustomers = [];
-
             customerRows.forEach(row => {
                 const nameInput = row.querySelector('[data-field="name"]');
                 if (nameInput && nameInput.value.trim() !== '') {
                     newCustomers.push({
-                        name: nameInput.value.trim(),
-                        phone: row.querySelector('[data-field="phone"]').value.trim(),
-                        car: row.querySelector('[data-field="car"]').value.trim(),
-                        address: row.querySelector('[data-field="address"]').value.trim(),
+                        name: nameInput.value.trim(), phone: row.querySelector('[data-field="phone"]').value.trim(),
+                        car: row.querySelector('[data-field="car"]').value.trim(), address: row.querySelector('[data-field="address"]').value.trim(),
                     });
                 }
             });
@@ -309,46 +312,115 @@
                 return;
             }
 
-            console.log("Chuẩn bị gửi dữ liệu:", { newCustomers, userInfo: JSON.parse(sessionStorage.getItem('loggedInUser')) });
+            console.log("[ADD] Chuẩn bị gửi dữ liệu:", { newCustomers, userInfo: JSON.parse(sessionStorage.getItem('loggedInUser')) });
 
             try {
-                if (typeof CRM_APPS_SCRIPT_URL === 'undefined') {
-                    throw new Error("Lỗi cấu hình: Không tìm thấy CRM_APPS_SCRIPT_URL.");
-                }
+                if (typeof CRM_APPS_SCRIPT_URL === 'undefined') throw new Error("Lỗi cấu hình: Không tìm thấy CRM_APPS_SCRIPT_URL.");
 
-                const response = await fetch(CRM_APPS_SCRIPT_URL, {
+                const res = await fetch(CRM_APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Cần thiết cho request tới Apps Script theo kiểu này
-                    headers: { 'Content-Type': 'application/json' }, // Dù là no-cors vẫn nên có
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({
                         action: 'addCustomers',
-                        data: { 
-                            newCustomers: newCustomers, 
-                            userInfo: JSON.parse(sessionStorage.getItem('loggedInUser')) 
-                        }
+                        data: { newCustomers, userInfo: JSON.parse(sessionStorage.getItem('loggedInUser')) }
                     })
                 });
+
+                if (!res.ok) throw new Error(`Lỗi mạng: ${res.statusText}`);
                 
-                // Lưu ý: Với 'no-cors', chúng ta không thể đọc response.
-                // Chúng ta sẽ lạc quan rằng nó thành công và sẽ kiểm tra lại dữ liệu sau.
-                console.log("Đã gửi yêu cầu thêm khách hàng.");
-                showToast(`Đã gửi ${newCustomers.length} khách hàng. Dữ liệu sẽ sớm được cập nhật.`, true);
-                
-                document.getElementById('close-add-modal-btn').click(); // Đóng modal
-                rowsContainer.innerHTML = ''; // Xóa các dòng đã nhập
-                
-                // Tự động nhấn nút xem báo cáo sau 2 giây để làm mới
-                setTimeout(() => {
-                    document.getElementById('filter-btn').click();
-                }, 2000);
+                const result = await res.json();
+                console.log("[ADD] Phản hồi từ server:", result);
+                if (result.success) {
+                    showToast(result.message, true);
+                    document.getElementById('close-add-modal-btn').click();
+                    rowsContainer.innerHTML = '';
+                    setTimeout(() => { document.getElementById('filter-btn').click(); }, 1000);
+                } else {
+                    throw new Error(result.message || "Có lỗi xảy ra từ phía server.");
+                }
 
             } catch (error) {
-                console.error("Lỗi khi thêm khách hàng:", error);
+                console.error("[ADD] Lỗi khi thêm khách hàng:", error);
                 showToast(`Lỗi: ${error.message}`, false);
             } finally {
                 setButtonLoading(submitBtn, false, originalBtnHtml);
             }
         }
+        
+        // HÀM MỚI: Xử lý khi nhấn nút "Xem báo cáo"
+        async function handleFilterCustomers() {
+            const filterBtn = document.getElementById('filter-btn');
+            const originalBtnHtml = filterBtn.innerHTML;
+            setButtonLoading(filterBtn, true, originalBtnHtml);
+
+            const statusMessage = document.getElementById('status-message');
+            const tableBody = document.getElementById('customer-table-body');
+            tableBody.innerHTML = '';
+            statusMessage.textContent = 'Đang tải dữ liệu...';
+
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            
+            console.log("[GET] Lọc dữ liệu từ", startDate, "đến", endDate);
+            
+            try {
+                if (typeof CRM_APPS_SCRIPT_URL === 'undefined') throw new Error("Lỗi cấu hình: Không tìm thấy CRM_APPS_SCRIPT_URL.");
+
+                const params = new URLSearchParams({
+                    action: 'getCustomers',
+                    startDate: startDate,
+                    endDate: endDate,
+                    userName: JSON.parse(sessionStorage.getItem('loggedInUser')).fullName
+                });
+                
+                const res = await fetch(`${CRM_APPS_SCRIPT_URL}?${params.toString()}`);
+                if (!res.ok) throw new Error(`Lỗi mạng: ${res.statusText}`);
+                
+                const result = await res.json();
+                console.log("[GET] Phản hồi từ server:", result);
+                
+                if (result.success) {
+                    renderCustomerTable(result.data);
+                } else {
+                    throw new Error(result.message || "Server không phản hồi dữ liệu.");
+                }
+
+            } catch(error) {
+                console.error("[GET] Lỗi khi lấy dữ liệu:", error);
+                statusMessage.textContent = `Lỗi: ${error.message}`;
+            } finally {
+                setButtonLoading(filterBtn, false, originalBtnHtml);
+            }
+        }
+        
+        // HÀM MỚI: Hiển thị dữ liệu lên bảng
+        function renderCustomerTable(customers) {
+            const tableBody = document.getElementById('customer-table-body');
+            const statusMessage = document.getElementById('status-message');
+            tableBody.innerHTML = '';
+
+            if (!customers || customers.length === 0) {
+                statusMessage.textContent = 'Không tìm thấy khách hàng nào trong khoảng thời gian đã chọn.';
+                return;
+            }
+
+            statusMessage.style.display = 'none';
+            customers.forEach(customer => {
+                const row = document.createElement('tr');
+                row.className = 'bg-white border-b clickable-row';
+                row.innerHTML = `
+                    <td class="px-6 py-4">${customer.ngayTao || ''}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${customer.tenKH || ''}</td>
+                    <td class="px-6 py-4">${customer.loaiXe || ''}</td>
+                    <td class="px-6 py-4">${customer.trangThai || ''}</td>
+                    <td class="px-6 py-4">${customer.phanLoaiKH || ''}</td>
+                    <td class="px-6 py-4">${customer.ghiChu || ''}</td>
+                `;
+                // row.addEventListener('click', () => openEditModal(customer)); // Sẽ làm ở bước sau
+                tableBody.appendChild(row);
+            });
+        }
+
     </script>
 </body>
 </html>
