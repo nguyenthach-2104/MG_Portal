@@ -13,44 +13,23 @@
         }
         
         /* === CSS cho Hiệu ứng Menu Nâng cao === */
+        body.menu-is-open { overflow: hidden; }
+        .burger-line { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
+        .menu-is-open .burger-line-middle { opacity: 0; }
+        .menu-is-open .burger-line-top { transform: translateY(8px) rotate(45deg); }
+        .menu-is-open .burger-line-bottom { transform: translateY(-8px) rotate(-45deg); }
 
-        /* Ngăn trang cuộn khi menu mobile đang mở */
-        body.menu-is-open {
-            overflow: hidden;
-        }
-
-        /* 1. Nút Burger chuyển thành dấu X */
-        .burger-line {
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        }
-        .menu-is-open .burger-line-middle {
-            opacity: 0;
-        }
-        .menu-is-open .burger-line-top {
-            transform: translateY(8px) rotate(45deg);
-        }
-        .menu-is-open .burger-line-bottom {
-            transform: translateY(-8px) rotate(-45deg);
-        }
-
-        /* 2. Hiệu ứng "chảy" xuống cho các link menu */
         #mobile-menu nav a {
             opacity: 0;
             transform: translateY(-10px);
             transition: opacity 0.3s ease-out, transform 0.3s ease-out;
         }
-        
-        .menu-is-open #mobile-menu nav a {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+        .menu-is-open #mobile-menu nav a { opacity: 1; transform: translateY(0); }
         .menu-is-open #mobile-menu nav a:nth-child(1) { transition-delay: 0.1s; }
         .menu-is-open #mobile-menu nav a:nth-child(2) { transition-delay: 0.15s; }
         .menu-is-open #mobile-menu nav a:nth-child(3) { transition-delay: 0.2s; }
         .menu-is-open #mobile-menu nav a:nth-child(4) { transition-delay: 0.25s; }
         .menu-is-open #mobile-menu nav a:nth-child(5) { transition-delay: 0.3s; }
-        
     </style>
 </head>
 <body class="bg-gray-100">
@@ -65,7 +44,18 @@
                 <a href="ghepxe.html" class="text-gray-700 hover:text-red-600 transition-colors">Ghép xe</a>
                 <a href="vanban.html" class="text-gray-700 hover:text-red-600 transition-colors">Văn bản</a>
                 <a href="hoatdong.html" class="text-gray-700 hover:text-red-600 transition-colors">Hoạt động</a>
-                <button id="logout-button-desktop" class="bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">Đăng xuất</button>
+                
+                <div class="h-6 w-px bg-gray-200"></div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p id="user-name-nav" class="font-semibold text-gray-800 leading-tight">Tên Nhân Viên</p>
+                        <p id="user-department-nav" class="text-xs text-gray-500 leading-tight">Phòng Ban</p>
+                    </div>
+                    <button id="logout-button-desktop" title="Đăng xuất" class="text-gray-500 hover:text-red-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </div>
             </div>
 
             <div class="md:hidden">
@@ -82,8 +72,13 @@
         <div id="menu-overlay" class="absolute inset-0 bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 ease-in-out"></div>
 
         <div id="mobile-menu" class="absolute top-0 right-0 h-full w-full max-w-xs bg-white shadow-xl transform translate-x-full transition-transform duration-300 ease-in-out">
-            <div class="p-4 flex flex-col h-full pt-20">
-                <nav class="flex flex-col space-y-6 text-xl">
+            <div class="p-4 flex flex-col h-full">
+                <div class="pb-4 border-b border-gray-200">
+                    <p id="user-name-mobile" class="font-semibold text-lg text-gray-800">Tên Nhân Viên</p>
+                    <p id="user-department-mobile" class="text-sm text-gray-500">Phòng Ban</p>
+                </div>
+
+                <nav class="flex flex-col space-y-6 text-xl mt-8">
                     <a href="crm.html" class="text-gray-700 hover:text-red-600 font-medium">Khách hàng (CRM)</a>
                     <a href="khoxe.html" class="text-gray-700 hover:text-red-600 font-medium">Kho xe</a>
                     <a href="ghepxe.html" class="text-gray-700 hover:text-red-600 font-medium">Ghép xe</a>
@@ -92,7 +87,10 @@
                 </nav>
 
                 <div class="mt-auto">
-                    <button id="logout-button-mobile" class="w-full bg-red-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-red-600 transition-colors text-left">Đăng xuất</button>
+                    <button id="logout-button-mobile" class="w-full flex items-center space-x-3 text-gray-600 hover:text-red-600 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        <span>Đăng xuất</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -101,53 +99,52 @@
     <main class="container mx-auto p-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-4">Chào mừng đến với MG Bình Dương Portal!</h1>
         <p class="text-gray-600 text-lg">Đây là trang chủ của bạn. Các chức năng chính có thể được truy cập từ menu điều hướng.</p>
-        
-        <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold text-gray-700 mb-3">Thông tin người dùng:</h2>
-            <p class="text-gray-600">Xin chào, <span id="user-full-name" class="font-medium text-red-600">Bạn</span>!</p>
-            <p class="text-gray-600">Phòng ban: <span id="user-department" class="font-medium">Chưa xác định</span></p>
-        </div>
     </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
             const burgerButton = document.getElementById('burger-button');
             const mobileMenuContainer = document.getElementById('mobile-menu-container');
             const mobileMenu = document.getElementById('mobile-menu');
             const menuOverlay = document.getElementById('menu-overlay');
             const body = document.body;
 
+            // --- Menu Mobile Logic ---
             const toggleMenu = () => {
                 body.classList.toggle('menu-is-open');
-
                 if (body.classList.contains('menu-is-open')) {
                     mobileMenuContainer.classList.remove('pointer-events-none');
                     menuOverlay.classList.remove('opacity-0');
                     mobileMenu.classList.remove('translate-x-full');
-                    body.classList.add('overflow-hidden');
                 } else {
                     menuOverlay.classList.add('opacity-0');
                     mobileMenu.classList.add('translate-x-full');
-                    setTimeout(() => {
-                        mobileMenuContainer.classList.add('pointer-events-none');
-                        body.classList.remove('overflow-hidden');
-                    }, 300);
+                    setTimeout(() => { mobileMenuContainer.classList.add('pointer-events-none'); }, 300);
                 }
             };
-
             burgerButton.addEventListener('click', toggleMenu);
             menuOverlay.addEventListener('click', toggleMenu);
 
             // --- Logic hiển thị thông tin người dùng và bảo vệ route ---
-            const userFullNameSpan = document.getElementById('user-full-name');
-            const userDepartmentSpan = document.getElementById('user-department');
+            const userNameNav = document.getElementById('user-name-nav');
+            const userDepartmentNav = document.getElementById('user-department-nav');
+            const userNameMobile = document.getElementById('user-name-mobile');
+            const userDepartmentMobile = document.getElementById('user-department-mobile');
             const loggedInUser = sessionStorage.getItem('loggedInUser');
             
             if (loggedInUser) {
                 try {
                     const userData = JSON.parse(loggedInUser);
-                    userFullNameSpan.textContent = userData.fullName || 'Bạn';
-                    userDepartmentSpan.textContent = userData.department || 'Chưa xác định';
+                    const fullName = userData.fullName || 'Chưa có tên';
+                    const department = userData.department || 'Chưa có phòng ban';
+
+                    // Cập nhật thông tin trên cả desktop và mobile
+                    userNameNav.textContent = fullName;
+                    userDepartmentNav.textContent = department;
+                    userNameMobile.textContent = fullName;
+                    userDepartmentMobile.textContent = department;
+
                 } catch (e) {
                     console.error("Lỗi khi parse thông tin người dùng:", e);
                 }
