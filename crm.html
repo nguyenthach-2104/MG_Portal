@@ -9,7 +9,7 @@
     <script src="config.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
-        body.menu-is-open { overflow: hidden; }
+        body.menu-is-open, body.modal-is-open { overflow: hidden; }
         .burger-line { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
         .menu-is-open .burger-line-middle { opacity: 0; }
         .menu-is-open .burger-line-top { transform: translateY(8px) rotate(45deg); }
@@ -21,107 +21,216 @@
         .menu-is-open #mobile-menu nav a:nth-child(3) { transition-delay: 0.2s; }
         .menu-is-open #mobile-menu nav a:nth-child(4) { transition-delay: 0.25s; }
         .menu-is-open #mobile-menu nav a:nth-child(5) { transition-delay: 0.3s; }
-        /* Style cho popup */
         .modal-overlay { transition: opacity 0.3s ease-in-out; }
         .modal-content { transition: transform 0.3s ease-in-out; }
-        /* Style cho accordion */
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         .note-timeline { white-space: pre-wrap; }
+        .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .table-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
     </style>
 </head>
 <body class="bg-gray-100">
 
-    <!-- ========== Header (Copy từ homepage.html) ========== -->
+    <!-- ========== Header ========== -->
     <nav class="bg-white/80 backdrop-blur-md shadow-sm p-4 sticky top-0 z-40">
-        <!-- ... (Dán toàn bộ thẻ <nav> từ file homepage.html vào đây) ... -->
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="homepage.html" class="text-2xl font-bold text-red-600">MG<span class="text-gray-700">Portal</span></a>
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <a href="crm.html" class="text-red-600 font-semibold transition-colors">Khách hàng</a>
+                <a href="khoxe.html" class="text-gray-700 hover:text-red-600 transition-colors">Kho xe</a>
+                <a href="ghepxe.html" class="text-gray-700 hover:text-red-600 transition-colors">Ghép xe</a>
+                <a href="vanban.html" class="text-gray-700 hover:text-red-600 transition-colors">Văn bản</a>
+                <a href="hoatdong.html" class="text-gray-700 hover:text-red-600 transition-colors">Hoạt động</a>
+                <div class="h-6 w-px bg-gray-200"></div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p id="user-name-nav" class="font-semibold text-gray-800 leading-tight">Tên NV</p>
+                        <p id="user-department-nav" class="text-xs text-gray-500 leading-tight">Phòng Ban</p>
+                    </div>
+                    <button id="logout-button-desktop" title="Đăng xuất" class="text-gray-500 hover:text-red-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="md:hidden">
+                <button id="burger-button" class="relative z-50 w-8 h-6 flex flex-col justify-between">
+                    <span class="burger-line burger-line-top block w-full h-0.5 bg-gray-700"></span>
+                    <span class="burger-line burger-line-middle block w-full h-0.5 bg-gray-700"></span>
+                    <span class="burger-line burger-line-bottom block w-full h-0.5 bg-gray-700"></span>
+                </button>
+            </div>
+        </div>
     </nav>
-    <div id="mobile-menu-container" class="fixed inset-0 z-50 pointer-events-none">
-        <!-- ... (Dán toàn bộ div#mobile-menu-container vào đây) ... -->
-    </div>
 
+    <!-- ========== Menu Mobile ========== -->
+    <div id="mobile-menu-container" class="fixed inset-0 z-50 pointer-events-none">
+        <div id="menu-overlay" class="absolute inset-0 bg-black bg-opacity-50 opacity-0 transition-opacity"></div>
+        <div id="mobile-menu" class="absolute top-0 right-0 h-full w-full max-w-xs bg-white shadow-xl transform translate-x-full transition-transform">
+            <div class="p-4 flex flex-col h-full">
+                <div class="pb-4 border-b">
+                    <p id="user-name-mobile" class="font-semibold text-lg">Tên NV</p>
+                    <p id="user-department-mobile" class="text-sm text-gray-500">Phòng Ban</p>
+                </div>
+                <nav class="flex flex-col space-y-6 text-xl mt-8">
+                    <a href="crm.html" class="text-red-600 font-medium">Khách hàng</a>
+                    <a href="khoxe.html" class="text-gray-700 hover:text-red-600">Kho xe</a>
+                    <a href="ghepxe.html" class="text-gray-700 hover:text-red-600">Ghép xe</a>
+                    <a href="vanban.html" class="text-gray-700 hover:text-red-600">Văn bản</a>
+                    <a href="hoatdong.html" class="text-gray-700 hover:text-red-600">Hoạt động</a>
+                </nav>
+                <div class="mt-auto">
+                    <button id="logout-button-mobile" class="w-full flex items-center space-x-3 text-gray-600 hover:text-red-600 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- ========== Nội dung chính của trang CRM ========== -->
-    <main class="container mx-auto p-6">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Quản lý Khách hàng (CRM)</h1>
-            <button id="open-add-modal-btn" class="mt-4 md:mt-0 w-full md:w-auto bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">Tạo KHTN mới</button>
+    <main class="container mx-auto p-4 md:p-6">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Quản lý Khách hàng Tiềm năng</h1>
+            <button id="open-add-modal-btn" class="w-full md:w-auto bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                <span>Tạo KHTN mới</span>
+            </button>
         </div>
 
-        <!-- Vùng lọc dữ liệu -->
-        <div class="bg-white p-4 rounded-lg shadow-md mb-6 flex flex-wrap items-end gap-4">
-            <div>
-                <label for="start-date" class="block text-sm font-medium text-gray-700">Từ ngày</label>
-                <input type="date" id="start-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+        <!-- Thanh công cụ lọc & tìm kiếm -->
+        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
+                    <input type="date" id="start-date" class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+                <div>
+                    <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
+                    <input type="date" id="end-date" class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+                <div class="sm:col-span-2 lg:col-span-1">
+                    <button id="filter-btn" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                        <span>Xem báo cáo</span>
+                    </button>
+                </div>
+                <div class="sm:col-span-2 lg:col-span-1">
+                     <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg></div>
+                        <input type="text" id="search-input" placeholder="Tìm tên KH, SĐT..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
             </div>
-            <div>
-                <label for="end-date" class="block text-sm font-medium text-gray-700">Đến ngày</label>
-                <input type="date" id="end-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
-            </div>
-            <button id="filter-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Xem báo cáo</button>
         </div>
 
         <!-- Bảng kết quả -->
         <div id="results-container" class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto table-container">
                 <table class="w-full text-sm text-left text-gray-500">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
                         <tr>
-                            <th scope="col" class="px-6 py-3">Ngày tạo</th>
-                            <th scope="col" class="px-6 py-3">Tên KH</th>
-                            <th scope="col" class="px-6 py-3">Loại xe</th>
-                            <th scope="col" class="px-6 py-3">Trạng thái</th>
-                            <th scope="col" class="px-6 py-3">Phân loại KH</th>
-                            <th scope="col" class="px-6 py-3">Ghi chú gần nhất</th>
+                            <th class="px-6 py-3">Ngày tạo</th>
+                            <th class="px-6 py-3">Tên KH</th>
+                            <th class="px-6 py-3">Loại xe</th>
+                            <th class="px-6 py-3">Trạng thái</th>
+                            <th class="px-6 py-3">Phân loại KH</th>
+                            <th class="px-6 py-3">Ghi chú gần nhất</th>
                         </tr>
                     </thead>
                     <tbody id="customer-table-body">
-                        <tr><td colspan="6" class="px-6 py-4 text-center">Vui lòng chọn khoảng thời gian và nhấn "Xem báo cáo".</td></tr>
+                        <!-- Dữ liệu sẽ được render ở đây -->
                     </tbody>
                 </table>
             </div>
-             <div id="loading-spinner" class="hidden text-center p-6">Đang tải dữ liệu...</div>
+             <div id="status-message" class="text-center p-6 text-gray-500">Vui lòng chọn khoảng thời gian và nhấn "Xem báo cáo".</div>
         </div>
     </main>
 
-    <!-- ========== Popup/Modal Chỉnh sửa Chi tiết Khách hàng ========== -->
-    <div id="edit-modal" class="fixed inset-0 z-50 hidden">
-        <!-- ... (Code cho modal chỉnh sửa) ... -->
-    </div>
-    
     <!-- ========== Popup/Modal Thêm Khách hàng mới ========== -->
     <div id="add-modal" class="fixed inset-0 z-50 hidden">
-        <!-- ... (Code cho modal thêm mới) ... -->
+        <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-content bg-white rounded-lg shadow-xl m-4 sm:mx-auto sm:w-full sm:max-w-2xl transform scale-95 relative">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-lg font-medium text-gray-900">Thêm Khách hàng Tiềm năng mới</h3>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto">
+                <div id="add-customer-rows" class="space-y-4">
+                    <!-- Các dòng nhập liệu sẽ được thêm vào đây -->
+                </div>
+                <button id="add-new-row-btn" class="mt-4 text-sm text-blue-600 hover:underline">+ Thêm khách hàng khác</button>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 flex justify-end gap-3">
+                <button id="close-add-modal-btn" class="bg-white border border-gray-300 py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-50">Hủy</button>
+                <button id="submit-add-btn" class="bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-red-700">Lưu khách hàng</button>
+            </div>
+        </div>
     </div>
-
+    
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300"></div>
+    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none"></div>
     
     <script>
         // Copy toàn bộ script của homepage.html vào đây để menu hoạt động
         document.addEventListener('DOMContentLoaded', () => {
-            // ... (Code JavaScript của menu từ homepage.html)
+            // --- Logic Menu & User Info (Copy từ homepage.html) ---
+            const burgerButton = document.getElementById('burger-button');
+            const mobileMenuContainer = document.getElementById('mobile-menu-container');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuOverlay = document.getElementById('menu-overlay');
+            const body = document.body;
+            const toggleMenu = () => { /* ... */ };
+            burgerButton.addEventListener('click', toggleMenu);
+            menuOverlay.addEventListener('click', toggleMenu);
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) { window.location.href = 'index.html'; return; }
+            // ... (Copy toàn bộ logic hiển thị thông tin user và logout)
             
             // ========== CODE CHO TRANG CRM ==========
-            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
-            if (!user) window.location.href = 'index.html';
+            const openAddModalBtn = document.getElementById('open-add-modal-btn');
+            const addModal = document.getElementById('add-modal');
+            const closeAddModalBtn = document.getElementById('close-add-modal-btn');
+            const addNewRowBtn = document.getElementById('add-new-row-btn');
 
-            // Gán giá trị mặc định cho date picker
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('start-date').value = today;
-            document.getElementById('end-date').value = today;
+            const openModal = (modalEl) => {
+                modalEl.classList.remove('hidden');
+                body.classList.add('modal-is-open');
+            };
 
-            document.getElementById('filter-btn').addEventListener('click', fetchCustomers);
-            // ... thêm các event listener khác
+            const closeModal = (modalEl) => {
+                modalEl.classList.add('hidden');
+                body.classList.remove('modal-is-open');
+            };
+
+            openAddModalBtn.addEventListener('click', () => {
+                openModal(addModal);
+                // Tạo sẵn 1 dòng khi mở modal
+                if (document.getElementById('add-customer-rows').children.length === 0) {
+                    addNewCustomerRow();
+                }
+            });
+            closeAddModalBtn.addEventListener('click', () => closeModal(addModal));
+            addNewRowBtn.addEventListener('click', addNewCustomerRow);
         });
 
-        async function fetchCustomers() { /* ... */ }
-        function renderTable(customers) { /* ... */ }
-        function openEditModal(customer) { /* ... */ }
-        function handleUpdateCustomer() { /* ... */ }
-        function openAddModal() { /* ... */ }
-        function addNewCustomerRow() { /* ... */ }
-        function handleAddCustomers() { /* ... */ }
-        // ... các hàm helper khác
+        function addNewCustomerRow() {
+            const container = document.getElementById('add-customer-rows');
+            const newRow = document.createElement('div');
+            newRow.className = 'grid grid-cols-1 sm:grid-cols-12 gap-3 border-b pb-4';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Tên KH" class="sm:col-span-3 border-gray-300 rounded-lg" data-field="name">
+                <input type="tel" placeholder="SĐT" class="sm:col-span-3 border-gray-300 rounded-lg" data-field="phone">
+                <input type="text" placeholder="Loại xe quan tâm" class="sm:col-span-3 border-gray-300 rounded-lg" data-field="car">
+                <input type="text" placeholder="Phường / Xã" class="sm:col-span-2 border-gray-300 rounded-lg" data-field="address">
+                <button class="remove-row-btn sm:col-span-1 text-gray-400 hover:text-red-500">&times;</button>
+            `;
+            container.appendChild(newRow);
+            newRow.querySelector('.remove-row-btn').addEventListener('click', () => newRow.remove());
+        }
+        
     </script>
 </body>
 </html>
+
