@@ -7,24 +7,29 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
-        /* Thêm transition cho body để hiệu ứng mượt hơn khi menu mở */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f0f2f5; 
+            transition: background-color 0.3s; /* Hiệu ứng mờ khi menu mở */
+        }
+        /* Ngăn trang cuộn khi menu mobile đang mở */
         body.overflow-hidden {
             overflow: hidden;
         }
     </style>
 </head>
-<body>
-    <nav class="bg-white shadow-md p-4 sticky top-0 z-40">
+<body class="bg-gray-100">
+
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm p-4 sticky top-0 z-40">
         <div class="container mx-auto flex justify-between items-center">
             <a href="homepage.html" class="text-2xl font-bold text-red-600">MG<span class="text-gray-700">Portal</span></a>
             
-            <div class="hidden md:flex items-center space-x-6">
-                <a href="crm.html" class="text-gray-700 hover:text-red-600 font-medium">Khách hàng</a>
-                <a href="khoxe.html" class="text-gray-700 hover:text-red-600 font-medium">Kho xe</a>
-                <a href="ghepxe.html" class="text-gray-700 hover:text-red-600 font-medium">Ghép xe</a>
-                <a href="vanban.html" class="text-gray-700 hover:text-red-600 font-medium">Văn bản</a>
-                <a href="hoatdong.html" class="text-gray-700 hover:text-red-600 font-medium">Hoạt động</a>
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <a href="crm.html" class="text-gray-700 hover:text-red-600 transition-colors">Khách hàng</a>
+                <a href="khoxe.html" class="text-gray-700 hover:text-red-600 transition-colors">Kho xe</a>
+                <a href="ghepxe.html" class="text-gray-700 hover:text-red-600 transition-colors">Ghép xe</a>
+                <a href="vanban.html" class="text-gray-700 hover:text-red-600 transition-colors">Văn bản</a>
+                <a href="hoatdong.html" class="text-gray-700 hover:text-red-600 transition-colors">Hoạt động</a>
                 <button id="logout-button-desktop" class="bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">Đăng xuất</button>
             </div>
 
@@ -36,66 +41,98 @@
         </div>
     </nav>
 
-    <div id="mobile-menu" class="fixed top-0 left-0 w-64 h-full bg-white shadow-xl z-50 transform -translate-x-full transition-transform duration-300 ease-in-out">
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-8">
-                <span class="text-xl font-bold text-red-600">Menu</span>
-                <button id="close-button" class="text-gray-600 hover:text-red-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
+    <div id="mobile-menu-container" class="fixed inset-0 z-50 pointer-events-none">
+        <div id="menu-overlay" class="absolute inset-0 bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 ease-in-out"></div>
 
-            <nav class="flex flex-col space-y-4">
-                <a href="crm.html" class="text-lg text-gray-700 hover:text-red-600">Khách hàng</a>
-                <a href="khoxe.html" class="text-lg text-gray-700 hover:text-red-600">Kho xe</a>
-                <a href="ghepxe.html" class="text-lg text-gray-700 hover:text-red-600">Ghép xe</a>
-                <a href="vanban.html" class="text-lg text-gray-700 hover:text-red-600">Văn bản</a>
-                <a href="hoatdong.html" class="text-lg text-gray-700 hover:text-red-600">Hoạt động</a>
-                <hr class="my-4">
-                <button id="logout-button-mobile" class="w-full bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors text-left">Đăng xuất</button>
-            </nav>
+        <div id="mobile-menu" class="absolute top-0 right-0 h-full w-full max-w-xs bg-white shadow-xl transform translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="p-4 flex flex-col h-full">
+                <div class="flex justify-between items-center mb-8">
+                    <span class="text-xl font-bold text-gray-800">Menu</span>
+                    <button id="close-button" class="text-gray-600 hover:text-red-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <nav class="flex flex-col space-y-6 text-lg">
+                    <a href="crm.html" class="text-gray-700 hover:text-red-600">Khách hàng (CRM)</a>
+                    <a href="khoxe.html" class="text-gray-700 hover:text-red-600">Kho xe</a>
+                    <a href="ghepxe.html" class="text-gray-700 hover:text-red-600">Ghép xe</a>
+                    <a href="vanban.html" class="text-gray-700 hover:text-red-600">Văn bản</a>
+                    <a href="hoatdong.html" class="text-gray-700 hover:text-red-600">Hoạt động</a>
+                </nav>
+
+                <div class="mt-auto">
+                    <button id="logout-button-mobile" class="w-full bg-red-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-red-600 transition-colors text-left">Đăng xuất</button>
+                </div>
+            </div>
         </div>
     </div>
     
-    <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
-
-    <main class="container mx-auto p-6 mt-8">
-        </main>
+    <main class="container mx-auto p-6">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Xin chào, <span id="user-full-name" class="font-medium text-red-600">Bạn</span>!</h1>
+            <p class="text-gray-600">Phòng ban: <span id="user-department" class="font-medium">Chưa xác định</span></p>
+        </div>
+        
+        <div class="mt-6">
+            <h2 class="text-xl font-semibold text-gray-700">Nội dung trang chủ</h2>
+            <p class="text-gray-600 mt-2">Khu vực này có thể chứa các thông báo, biểu đồ, hoặc các thông tin quan trọng khác.</p>
+        </div>
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const burgerButton = document.getElementById('burger-button');
             const closeButton = document.getElementById('close-button');
+            const mobileMenuContainer = document.getElementById('mobile-menu-container');
             const mobileMenu = document.getElementById('mobile-menu');
             const menuOverlay = document.getElementById('menu-overlay');
             const body = document.body;
 
             const openMenu = () => {
-                mobileMenu.classList.remove('-translate-x-full');
-                menuOverlay.classList.remove('hidden');
+                mobileMenuContainer.classList.remove('pointer-events-none');
+                menuOverlay.classList.remove('opacity-0');
+                mobileMenu.classList.remove('translate-x-full');
                 body.classList.add('overflow-hidden');
             };
 
             const closeMenu = () => {
-                mobileMenu.classList.add('-translate-x-full');
-                menuOverlay.classList.add('hidden');
-                body.classList.remove('overflow-hidden');
+                menuOverlay.classList.add('opacity-0');
+                mobileMenu.classList.add('translate-x-full');
+                setTimeout(() => { // Đợi hiệu ứng kết thúc rồi mới tắt pointer-events
+                    mobileMenuContainer.classList.add('pointer-events-none');
+                    body.classList.remove('overflow-hidden');
+                }, 300);
             };
 
             burgerButton.addEventListener('click', openMenu);
             closeButton.addEventListener('click', closeMenu);
             menuOverlay.addEventListener('click', closeMenu);
 
-            // Logic đăng xuất
+            // --- Logic hiển thị thông tin người dùng và bảo vệ route ---
+            const userFullNameSpan = document.getElementById('user-full-name');
+            const userDepartmentSpan = document.getElementById('user-department');
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            
+            if (loggedInUser) {
+                try {
+                    const userData = JSON.parse(loggedInUser);
+                    userFullNameSpan.textContent = userData.fullName || 'Bạn';
+                    userDepartmentSpan.textContent = userData.department || 'Chưa xác định';
+                } catch (e) {
+                    console.error("Lỗi khi parse thông tin người dùng:", e);
+                }
+            } else {
+                window.location.href = 'index.html'; 
+            }
+
+            // --- Logic Đăng xuất ---
             const logout = () => {
                 sessionStorage.removeItem('loggedInUser');
                 window.location.href = 'index.html';
             };
             document.getElementById('logout-button-desktop').addEventListener('click', logout);
             document.getElementById('logout-button-mobile').addEventListener('click', logout);
-            
-            // Logic bảo vệ route và hiển thị thông tin
-            // ... (giữ nguyên logic này) ...
         });
     </script>
 </body>
