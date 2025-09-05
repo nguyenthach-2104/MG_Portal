@@ -44,11 +44,16 @@
         }
         #animated-car {
             position: absolute;
-            width: 50px;
-            height: 25px;
+            width: 50px; /* Kích thước tương đối của icon */
+            height: 50px; /* Đặt bằng width để icon không bị méo */
             z-index: 10;
-            /* Dòng background-image đã được thay thế bằng mẫu xe mới */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ef4444' d='M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z'/%3E%3C/svg%3E");
+            font-size: 40px; /* Kích thước của emoji */
+            line-height: 1; /* Căn chỉnh icon */
+            text-align: center; /* Căn giữa icon trong vùng */
+            /* Thay đổi để sử dụng emoji thay vì SVG */
+            content: '🚗'; 
+            /* Bỏ background-image nếu có */
+            background-image: none; 
             background-size: contain;
             background-repeat: no-repeat;
             /* Áp dụng animation */
@@ -56,60 +61,32 @@
         }
 
        @keyframes drive-around {
-            /* Bắt đầu ngoài màn hình, chạy sang phải */
-            0% {
-                top: -12px; /* Căn giữa xe theo viền trên */
-                left: -50px; /* Bắt đầu ở ngoài */
-                transform: rotate(0deg);
-            }
-            /* Tới góc trên-phải */
-            25% {
-                top: -12px;
-                left: calc(100% - 25px); /* Dừng khi 1 nửa xe ra ngoài */
-                transform: rotate(0deg);
-            }
-            /* Quay đầu ở góc trên-phải */
-            30% {
-                top: -12px;
-                left: calc(100% - 25px);
-                transform: rotate(90deg);
-            }
+            /* Bắt đầu góc trên-trái, xe chạy ra ngoài hẳn */
+            0% { top: -25px; left: -55px; transform: rotate(0deg); } /* Xe quay mặt sang phải */
+            
+            /* Chạy sang phải */
+            24% { top: -25px; left: calc(100% - 15px); transform: rotate(0deg); } /* Dừng ở góc trên-phải */
+            
+            /* Quay đầu xuống dưới */
+            25% { transform: rotate(90deg); }
+            
             /* Chạy xuống dưới */
-            45% {
-                top: calc(100% - 13px); /* Tới góc dưới-phải */
-                left: calc(100% - 25px);
-                transform: rotate(90deg);
-            }
-            /* Quay đầu ở góc dưới-phải */
-            50% {
-                top: calc(100% - 13px);
-                left: calc(100% - 25px);
-                transform: rotate(180deg);
-            }
+            49% { top: calc(100% - 25px); left: calc(100% - 15px); transform: rotate(90deg); } /* Dừng ở góc dưới-phải */
+            
+            /* Quay đầu sang trái */
+            50% { transform: rotate(180deg); }
+            
             /* Chạy sang trái */
-            75% {
-                top: calc(100% - 13px);
-                left: -25px; /* Tới góc dưới-trái */
-                transform: rotate(180deg);
-            }
-            /* Quay đầu ở góc dưới-trái */
-            80% {
-                top: calc(100% - 13px);
-                left: -25px;
-                transform: rotate(270deg);
-            }
+            74% { top: calc(100% - 25px); left: -55px; transform: rotate(180deg); } /* Dừng ở góc dưới-trái */
+            
+            /* Quay đầu lên trên */
+            75% { transform: rotate(270deg); }
+            
             /* Chạy lên trên */
-            95% {
-                top: -12px;
-                left: -25px;
-                transform: rotate(270deg);
-            }
-            /* Hoàn thành vòng lặp */
-            100% {
-                top: -12px;
-                left: -25px;
-                transform: rotate(360deg);
-            }
+            99% { top: -25px; left: -55px; transform: rotate(270deg); } /* Dừng ở góc trên-trái */
+            
+            /* Hoàn thành vòng lặp (về lại vị trí ban đầu nhưng quay về hướng ban đầu) */
+            100% { top: -25px; left: -55px; transform: rotate(360deg); }
         }
     </style>
 </head>
