@@ -4,10 +4,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - MG Bình Dương</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        body.menu-is-open { overflow: hidden; }
+        .burger-line { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
+        .menu-is-open .burger-line-middle { opacity: 0; }
+        .menu-is-open .burger-line-top { transform: translateY(8px) rotate(45deg); }
+        .menu-is-open .burger-line-bottom { transform: translateY(-8px) rotate(-45deg); }
+        #mobile-menu nav a { opacity: 0; transform: translateY(-10px); transition: opacity 0.3s ease-out, transform 0.3s ease-out; }
+        .menu-is-open #mobile-menu nav a { opacity: 1; transform: translateY(0); }
+        .menu-is-open #mobile-menu nav a:nth-child(1) { transition-delay: 0.1s; }
+        .menu-is-open #mobile-menu nav a:nth-child(2) { transition-delay: 0.15s; }
+        .menu-is-open #mobile-menu nav a:nth-child(3) { transition-delay: 0.2s; }
+        .menu-is-open #mobile-menu nav a:nth-child(4) { transition-delay: 0.25s; }
+        .menu-is-open #mobile-menu nav a:nth-child(5) { transition-delay: 0.3s; }
+        /* Style cho popup */
+        .modal-overlay { transition: opacity 0.3s ease-in-out; }
+        .modal-content { transition: transform 0.3s ease-in-out; }
+        /* Style cho accordion */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        .note-timeline { white-space: pre-wrap; }
+    </style>
 </head>
-<body>
-    <h1>Trang Khách hàng (CRM)</h1>
-    <p>Đây là nội dung của trang CRM.</p>
-    <a href="homepage.html">Quay về trang chủ</a>
+<body class="bg-gray-100">
+
+    <!-- ========== Header (Copy từ homepage.html) ========== -->
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm p-4 sticky top-0 z-40">
+        <!-- ... (Dán toàn bộ thẻ <nav> từ file homepage.html vào đây) ... -->
+    </nav>
+    <div id="mobile-menu-container" class="fixed inset-0 z-50 pointer-events-none">
+        <!-- ... (Dán toàn bộ div#mobile-menu-container vào đây) ... -->
+    </div>
+
+    <!-- ========== Nội dung chính của trang CRM ========== -->
+    <main class="container mx-auto p-6">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Quản lý Khách hàng (CRM)</h1>
+            <button id="open-add-modal-btn" class="mt-4 md:mt-0 w-full md:w-auto bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">Tạo KHTN mới</button>
+        </div>
+
+        <!-- Vùng lọc dữ liệu -->
+        <div class="bg-white p-4 rounded-lg shadow-md mb-6 flex flex-wrap items-end gap-4">
+            <div>
+                <label for="start-date" class="block text-sm font-medium text-gray-700">Từ ngày</label>
+                <input type="date" id="start-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+            </div>
+            <div>
+                <label for="end-date" class="block text-sm font-medium text-gray-700">Đến ngày</label>
+                <input type="date" id="end-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+            </div>
+            <button id="filter-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Xem báo cáo</button>
+        </div>
+
+        <!-- Bảng kết quả -->
+        <div id="results-container" class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Ngày tạo</th>
+                            <th scope="col" class="px-6 py-3">Tên KH</th>
+                            <th scope="col" class="px-6 py-3">Loại xe</th>
+                            <th scope="col" class="px-6 py-3">Trạng thái</th>
+                            <th scope="col" class="px-6 py-3">Phân loại KH</th>
+                            <th scope="col" class="px-6 py-3">Ghi chú gần nhất</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customer-table-body">
+                        <tr><td colspan="6" class="px-6 py-4 text-center">Vui lòng chọn khoảng thời gian và nhấn "Xem báo cáo".</td></tr>
+                    </tbody>
+                </table>
+            </div>
+             <div id="loading-spinner" class="hidden text-center p-6">Đang tải dữ liệu...</div>
+        </div>
+    </main>
+
+    <!-- ========== Popup/Modal Chỉnh sửa Chi tiết Khách hàng ========== -->
+    <div id="edit-modal" class="fixed inset-0 z-50 hidden">
+        <!-- ... (Code cho modal chỉnh sửa) ... -->
+    </div>
+    
+    <!-- ========== Popup/Modal Thêm Khách hàng mới ========== -->
+    <div id="add-modal" class="fixed inset-0 z-50 hidden">
+        <!-- ... (Code cho modal thêm mới) ... -->
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300"></div>
+    
+    <script>
+        // Copy toàn bộ script của homepage.html vào đây để menu hoạt động
+        document.addEventListener('DOMContentLoaded', () => {
+            // ... (Code JavaScript của menu từ homepage.html)
+            
+            // ========== CODE CHO TRANG CRM ==========
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) window.location.href = 'index.html';
+
+            // Gán giá trị mặc định cho date picker
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start-date').value = today;
+            document.getElementById('end-date').value = today;
+
+            document.getElementById('filter-btn').addEventListener('click', fetchCustomers);
+            // ... thêm các event listener khác
+        });
+
+        async function fetchCustomers() { /* ... */ }
+        function renderTable(customers) { /* ... */ }
+        function openEditModal(customer) { /* ... */ }
+        function handleUpdateCustomer() { /* ... */ }
+        function openAddModal() { /* ... */ }
+        function addNewCustomerRow() { /* ... */ }
+        function handleAddCustomers() { /* ... */ }
+        // ... các hàm helper khác
+    </script>
 </body>
 </html>
