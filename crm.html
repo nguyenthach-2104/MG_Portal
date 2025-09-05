@@ -54,16 +54,61 @@
             animation: drive-around 15s linear infinite;
         }
 
-        @keyframes drive-around {
-            0% { transform: rotate(0deg); top: -30px; left: -50px; }
-            10% { transform: rotate(0deg); top: -30px; left: calc(100% + 10px); }
-            10.1% { transform: rotate(90deg); }
-            35% { transform: rotate(90deg); top: calc(100% + 10px); left: calc(100% + 10px); }
-            35.1% { transform: rotate(180deg); }
-            60% { transform: rotate(180deg); top: calc(100% + 10px); left: -50px; }
-            60.1% { transform: rotate(270deg); }
-            85% { transform: rotate(270deg); top: -30px; left: -50px; }
-            100% { transform: rotate(359deg); top: -30px; left: -50px; }
+       @keyframes drive-around {
+            /* Bắt đầu ngoài màn hình, chạy sang phải */
+            0% {
+                top: -12px; /* Căn giữa xe theo viền trên */
+                left: -50px; /* Bắt đầu ở ngoài */
+                transform: rotate(0deg);
+            }
+            /* Tới góc trên-phải */
+            25% {
+                top: -12px;
+                left: calc(100% - 25px); /* Dừng khi 1 nửa xe ra ngoài */
+                transform: rotate(0deg);
+            }
+            /* Quay đầu ở góc trên-phải */
+            30% {
+                top: -12px;
+                left: calc(100% - 25px);
+                transform: rotate(90deg);
+            }
+            /* Chạy xuống dưới */
+            45% {
+                top: calc(100% - 13px); /* Tới góc dưới-phải */
+                left: calc(100% - 25px);
+                transform: rotate(90deg);
+            }
+            /* Quay đầu ở góc dưới-phải */
+            50% {
+                top: calc(100% - 13px);
+                left: calc(100% - 25px);
+                transform: rotate(180deg);
+            }
+            /* Chạy sang trái */
+            75% {
+                top: calc(100% - 13px);
+                left: -25px; /* Tới góc dưới-trái */
+                transform: rotate(180deg);
+            }
+            /* Quay đầu ở góc dưới-trái */
+            80% {
+                top: calc(100% - 13px);
+                left: -25px;
+                transform: rotate(270deg);
+            }
+            /* Chạy lên trên */
+            95% {
+                top: -12px;
+                left: -25px;
+                transform: rotate(270deg);
+            }
+            /* Hoàn thành vòng lặp */
+            100% {
+                top: -12px;
+                left: -25px;
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
