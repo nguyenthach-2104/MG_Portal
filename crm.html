@@ -44,19 +44,18 @@
         }
         #animated-car {
             position: absolute;
-            width: 50px; /* Kích thước tương đối của icon */
-            height: 50px; /* Đặt bằng width để icon không bị méo */
+            width: 50px;
+            height: 50px;
             z-index: 10;
             font-size: 40px; /* Kích thước của emoji */
-            line-height: 1; /* Căn chỉnh icon */
-            text-align: center; /* Căn giữa icon trong vùng */
-            /* Thay đổi để sử dụng emoji thay vì SVG */
-            content: '🚗'; 
-            /* Bỏ background-image nếu có */
+            line-height: 50px; /* Căn emoji vào giữa theo chiều dọc */
+            text-align: center; /* Căn emoji vào giữa theo chiều ngang */
+            
+            /* Bỏ các thuộc tính không cần thiết cho emoji */
+            /* content: '🚗'; <-- Dòng này sai và đã được xóa */
             background-image: none; 
-            background-size: contain;
-            background-repeat: no-repeat;
-            /* Áp dụng animation */
+
+            /* Giữ lại animation */
             animation: drive-around 15s linear infinite;
         }
 
@@ -183,7 +182,7 @@
 
         <div id="results-container" class="bg-white rounded-lg shadow-md overflow-hidden">
             
-            <div id="animated-car"></div>
+            <div id="animated-car">🚗</div>
 
             <div class="overflow-x-auto table-container">
                 <table class="w-full text-sm text-left text-gray-500">
