@@ -291,9 +291,9 @@
             }
         };
 
-        const populateSelect = (selectElement, options, selectedValue) => {
+        const populateSelect = (selectElement, options, selectedValue, placeholder = '-- Chọn --') => {
             if (!selectElement || !Array.isArray(options)) return;
-            selectElement.innerHTML = '<option value="">-- Chọn --</option>';
+            selectElement.innerHTML = `<option value="">${placeholder}</option>`;
             const uniqueOptions = [...new Set(options.filter(Boolean))];
             uniqueOptions.forEach(option => {
                 const optionEl = document.createElement('option');
@@ -367,16 +367,16 @@
                      <input type="text" placeholder="Tỉnh / TP" class="border-gray-300 rounded-lg text-sm bg-gray-100" data-field="tinhTp" readonly>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <select class="border-gray-300 rounded-lg text-sm" data-field="loaiXe"><option>Loại xe</option></select>
-                    <select class="border-gray-300 rounded-lg text-sm" data-field="kenh"><option>Kênh</option></select>
-                    <select class="border-gray-300 rounded-lg text-sm" data-field="nguon"><option>Nguồn</option></select>
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="loaiXe"></select>
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="kenh"></select>
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="nguon"></select>
                 </div>
             `;
             container.appendChild(newRow);
 
-            populateSelect(newRow.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe);
-            populateSelect(newRow.querySelector('[data-field="kenh"]'), allDropdownData.kenh);
-            populateSelect(newRow.querySelector('[data-field="nguon"]'), allDropdownData.nguon);
+            populateSelect(newRow.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe, null, 'Chọn Loại xe');
+            populateSelect(newRow.querySelector('[data-field="kenh"]'), allDropdownData.kenh, null, 'Chọn Kênh');
+            populateSelect(newRow.querySelector('[data-field="nguon"]'), allDropdownData.nguon, null, 'Chọn Nguồn');
             initAutocomplete(newRow.querySelector('.autocomplete-input'));
         }
 
