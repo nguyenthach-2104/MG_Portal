@@ -287,7 +287,6 @@
             }
         }
         
-        // SỬA LỖI: Bỏ 'no-cors' và xử lý response
         async function handleAddCustomers() {
             const submitBtn = document.getElementById('submit-add-btn');
             const originalBtnHtml = submitBtn.innerHTML;
@@ -347,7 +346,6 @@
             }
         }
         
-        // HÀM MỚI: Xử lý khi nhấn nút "Xem báo cáo"
         async function handleFilterCustomers() {
             const filterBtn = document.getElementById('filter-btn');
             const originalBtnHtml = filterBtn.innerHTML;
@@ -356,6 +354,7 @@
             const statusMessage = document.getElementById('status-message');
             const tableBody = document.getElementById('customer-table-body');
             tableBody.innerHTML = '';
+            statusMessage.style.display = 'block'; // Hiển thị lại status
             statusMessage.textContent = 'Đang tải dữ liệu...';
 
             const startDate = document.getElementById('start-date').value;
@@ -393,13 +392,13 @@
             }
         }
         
-        // HÀM MỚI: Hiển thị dữ liệu lên bảng
         function renderCustomerTable(customers) {
             const tableBody = document.getElementById('customer-table-body');
             const statusMessage = document.getElementById('status-message');
             tableBody.innerHTML = '';
 
             if (!customers || customers.length === 0) {
+                statusMessage.style.display = 'block';
                 statusMessage.textContent = 'Không tìm thấy khách hàng nào trong khoảng thời gian đã chọn.';
                 return;
             }
@@ -408,15 +407,16 @@
             customers.forEach(customer => {
                 const row = document.createElement('tr');
                 row.className = 'bg-white border-b clickable-row';
+                // *** SỬA LỖI TẠI ĐÂY ***
+                // Sử dụng key đã được chuẩn hóa (chữ thường, có gạch dưới)
                 row.innerHTML = `
-                    <td class="px-6 py-4">${customer.ngayTao || ''}</td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${customer.tenKH || ''}</td>
-                    <td class="px-6 py-4">${customer.loaiXe || ''}</td>
-                    <td class="px-6 py-4">${customer.trangThai || ''}</td>
-                    <td class="px-6 py-4">${customer.phanLoaiKH || ''}</td>
-                    <td class="px-6 py-4">${customer.ghiChu || ''}</td>
+                    <td class="px-6 py-4">${customer.ngay_tao ? new Date(customer.ngay_tao).toLocaleDateString('vi-VN') : ''}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${customer.ten_khach_hang || ''}</td>
+                    <td class="px-6 py-4">${customer.loai_xe || ''}</td>
+                    <td class="px-6 py-4">${customer.trang_thai || ''}</td>
+                    <td class="px-6 py-4">${customer.phan_loai_kh || ''}</td>
+                    <td class="px-6 py-4">${customer.ghi_chu || ''}</td>
                 `;
-                // row.addEventListener('click', () => openEditModal(customer)); // Sẽ làm ở bước sau
                 tableBody.appendChild(row);
             });
         }
