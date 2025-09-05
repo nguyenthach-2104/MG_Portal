@@ -29,19 +29,17 @@
         .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
         .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
         .table-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-        .button-loading {
-            cursor: not-allowed;
-            opacity: 0.8;
-        }
-        .clickable-row:hover {
-            background-color: #f9fafb;
-            cursor: pointer;
-        }
+        .button-loading { cursor: not-allowed; opacity: 0.8; }
+        .clickable-row:hover { background-color: #f9fafb; cursor: pointer; }
+        /* Autocomplete Styles */
+        .autocomplete-container { position: relative; }
+        .autocomplete-items { position: absolute; border: 1px solid #d1d5db; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background-color: white; }
+        .autocomplete-items div { padding: 8px 12px; cursor: pointer; }
+        .autocomplete-items div:hover { background-color: #f3f4f6; }
     </style>
 </head>
 <body class="bg-gray-100">
 
-    <!-- ========== Header ========== -->
     <nav class="bg-white/80 backdrop-blur-md shadow-sm p-4 sticky top-0 z-40">
         <div class="container mx-auto flex justify-between items-center">
             <a href="homepage.html" class="text-2xl font-bold text-red-600">MG<span class="text-gray-700">Portal</span></a>
@@ -72,7 +70,6 @@
         </div>
     </nav>
 
-    <!-- ========== Menu Mobile ========== -->
     <div id="mobile-menu-container" class="fixed inset-0 z-50 pointer-events-none">
         <div id="menu-overlay" class="absolute inset-0 bg-black bg-opacity-50 opacity-0 transition-opacity"></div>
         <div id="mobile-menu" class="absolute top-0 right-0 h-full w-full max-w-xs bg-white shadow-xl transform translate-x-full transition-transform">
@@ -98,7 +95,6 @@
         </div>
     </div>
     
-    <!-- ========== Nội dung chính của trang CRM ========== -->
     <main class="container mx-auto p-4 md:p-6">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Quản lý Khách hàng Tiềm năng</h1>
@@ -112,22 +108,22 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                 <div>
                     <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
-                    <input type="date" id="start-date" class="w-full border-gray-300 rounded-lg shadow-sm">
+                    <input type="date" id="start-date" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500">
                 </div>
                 <div>
                     <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
-                    <input type="date" id="end-date" class="w-full border-gray-300 rounded-lg shadow-sm">
+                    <input type="date" id="end-date" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500">
                 </div>
                 <div class="sm:col-span-2 lg:col-span-1">
                     <button id="filter-btn" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2">
-                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6-4.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h18M7 8v8m10-8v8M4 12h16m-7 4h-2"></path></svg>
                         <span>Xem báo cáo</span>
                     </button>
                 </div>
                 <div class="sm:col-span-2 lg:col-span-1">
                      <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg></div>
-                        <input type="text" id="search-input" placeholder="Tìm tên KH, SĐT..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg">
+                        <input type="text" id="search-input" placeholder="Tìm tên KH, SĐT..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
                     </div>
                 </div>
             </div>
@@ -153,15 +149,14 @@
         </div>
     </main>
 
-    <!-- ========== Popup/Modal Thêm Khách hàng mới ========== -->
     <div id="add-modal" class="fixed inset-0 z-50 hidden">
         <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50"></div>
-        <div class="modal-content bg-white rounded-lg shadow-xl m-4 sm:mx-auto sm:w-full sm:max-w-2xl transform scale-95 relative">
+        <div class="modal-content bg-white rounded-lg shadow-xl m-4 sm:mx-auto sm:w-full sm:max-w-3xl transform scale-95 relative">
             <div class="px-6 py-4 border-b">
                 <h3 class="text-lg font-medium text-gray-900">Thêm Khách hàng Tiềm năng mới</h3>
             </div>
             <div class="p-6 max-h-[70vh] overflow-y-auto">
-                <div id="add-customer-rows" class="space-y-4"></div>
+                <div id="add-customer-rows" class="space-y-6"></div>
                 <button id="add-new-row-btn" class="mt-4 text-sm text-blue-600 hover:underline">+ Thêm khách hàng khác</button>
             </div>
             <div class="px-6 py-4 bg-gray-50 flex justify-end gap-3">
@@ -171,7 +166,6 @@
         </div>
     </div>
     
-    <!-- ========== Popup/Modal Chỉnh sửa Khách hàng ========== -->
     <div id="edit-modal" class="fixed inset-0 z-50 hidden">
         <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50"></div>
         <div class="modal-content bg-white rounded-lg shadow-xl m-4 sm:mx-auto sm:w-full sm:max-w-2xl transform scale-95 relative">
@@ -179,7 +173,7 @@
                 <h3 class="text-lg font-medium text-gray-900">Chi tiết Khách hàng Tiềm năng</h3>
                 <button id="close-edit-modal-btn" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
             </div>
-            <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+            <div id="edit-form-container" class="p-6 max-h-[70vh] overflow-y-auto space-y-4">
                 <input type="hidden" id="edit-row-index">
 
                 <details class="bg-gray-50 rounded-lg" open>
@@ -201,8 +195,14 @@
                     <div class="p-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                         <div><label class="block font-medium">Tên Khách hàng</label><input type="text" data-field="tenKhachHang" class="w-full mt-1 border-gray-300 rounded-md"></div>
                         <div><label class="block font-medium">Số điện thoại</label><input type="text" data-field="sdt" class="w-full mt-1 border-gray-300 rounded-md"></div>
-                        <div><label class="block font-medium">Phường / Xã</label><input type="text" data-field="phuongXa" class="w-full mt-1 border-gray-300 rounded-md"></div>
-                        <div><label class="block font-medium">Tỉnh / TP</label><input type="text" data-field="tinhTp" class="w-full mt-1 border-gray-300 rounded-md"></div>
+                        <div class="autocomplete-container">
+                            <label class="block font-medium">Phường / Xã</label>
+                            <input type="text" data-field="phuongXa" class="w-full mt-1 border-gray-300 rounded-md autocomplete-input">
+                        </div>
+                        <div>
+                            <label class="block font-medium">Tỉnh / TP</label>
+                            <input type="text" data-field="tinhTp" class="w-full mt-1 border-gray-300 rounded-md bg-gray-100" readonly>
+                        </div>
                     </div>
                 </details>
                 
@@ -212,7 +212,7 @@
                         <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </summary>
                     <div class="p-3 border-t grid grid-cols-1 gap-4 text-sm">
-                        <div><label class="block font-medium">Loại xe quan tâm</label><input type="text" data-field="loaiXe" class="w-full mt-1 border-gray-300 rounded-md"></div>
+                        <div><label class="block font-medium">Loại xe quan tâm</label><select data-field="loaiXe" class="w-full mt-1 border-gray-300 rounded-md"></select></div>
                     </div>
                 </details>
 
@@ -222,11 +222,11 @@
                         <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </summary>
                     <div class="p-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                        <div><label class="block font-medium">Kênh</label><input type="text" data-field="kenh" class="w-full mt-1 border-gray-300 rounded-md"></div>
-                        <div><label class="block font-medium">Nguồn</label><input type="text" data-field="nguon" class="w-full mt-1 border-gray-300 rounded-md"></div>
-                        <div><label class="block font-medium">Trạng thái</label><input type="text" data-field="trangThai" class="w-full mt-1 border-gray-300 rounded-md"></div>
-                        <div><label class="block font-medium">Phân loại KH</label><input type="text" data-field="phanLoaiKH" class="w-full mt-1 border-gray-300 rounded-md"></div>
-                        <div class="col-span-full"><label class="block font-medium">Lái thử</label><input type="text" data-field="laiThu" class="w-full mt-1 border-gray-300 rounded-md"></div>
+                        <div><label class="block font-medium">Kênh</label><select data-field="kenh" class="w-full mt-1 border-gray-300 rounded-md"></select></div>
+                        <div><label class="block font-medium">Nguồn</label><select data-field="nguon" class="w-full mt-1 border-gray-300 rounded-md"></select></div>
+                        <div><label class="block font-medium">Trạng thái</label><select data-field="trangThai" class="w-full mt-1 border-gray-300 rounded-md"></select></div>
+                        <div><label class="block font-medium">Phân loại KH</label><select data-field="phanLoaiKH" class="w-full mt-1 border-gray-300 rounded-md"></select></div>
+                        <div class="col-span-full"><label class="block font-medium">Lái thử</label><select data-field="laiThu" class="w-full mt-1 border-gray-300 rounded-md"></select></div>
                     </div>
                 </details>
 
@@ -254,10 +254,12 @@
     <div id="toast" class="fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none"></div>
     
     <script>
-        // Biến toàn cục để lưu trữ dữ liệu hiện tại
+        // === BIẾN TOÀN CỤC & DỮ LIỆU CACHE ===
         let currentCustomers = [];
-        
-        // === KHAI BÁO CÁC HÀM TIỆN ÍCH (ĐƯA RA NGOÀI) ===
+        let allDropdownData = {};
+        let khuVucData = [];
+
+        // === KHAI BÁO CÁC HÀM TIỆN ÍCH ===
         const openModal = (modalEl) => {
             modalEl.classList.remove('hidden');
             document.body.classList.add('modal-is-open');
@@ -267,31 +269,16 @@
             modalEl.classList.add('hidden');
             document.body.classList.remove('modal-is-open');
         };
-
-        function addNewCustomerRow() {
-            const container = document.getElementById('add-customer-rows');
-            const newRow = document.createElement('div');
-            newRow.className = 'grid grid-cols-1 sm:grid-cols-12 gap-3 border-b pb-4';
-            newRow.innerHTML = `
-                <input type="text" placeholder="Tên KH (*)" class="sm:col-span-3 border-gray-300 rounded-lg text-sm" data-field="name">
-                <input type="tel" placeholder="SĐT" class="sm:col-span-3 border-gray-300 rounded-lg text-sm" data-field="phone">
-                <input type="text" placeholder="Loại xe quan tâm" class="sm:col-span-3 border-gray-300 rounded-lg text-sm" data-field="car">
-                <input type="text" placeholder="Phường / Xã" class="sm:col-span-2 border-gray-300 rounded-lg text-sm" data-field="address">
-                <button class="remove-row-btn sm:col-span-1 text-gray-400 hover:text-red-500 flex items-center justify-center text-2xl font-bold">&times;</button>
-            `;
-            container.appendChild(newRow);
-            newRow.querySelector('.remove-row-btn').addEventListener('click', () => newRow.remove());
-        }
-
-        function showToast(message, isSuccess = true) {
+        
+        const showToast = (message, isSuccess = true) => {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = `fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300 pointer-events-none ${isSuccess ? 'bg-green-600' : 'bg-red-600'}`;
             toast.classList.remove('opacity-0');
             setTimeout(() => { toast.classList.add('opacity-0'); }, 3000);
-        }
+        };
 
-        function setButtonLoading(button, isLoading, defaultHtml) {
+        const setButtonLoading = (button, isLoading, defaultHtml) => {
             if (isLoading) {
                 button.disabled = true;
                 button.classList.add('button-loading');
@@ -301,23 +288,124 @@
                 button.classList.remove('button-loading');
                 button.innerHTML = defaultHtml;
             }
+        };
+
+        const populateSelect = (selectElement, options, selectedValue) => {
+            selectElement.innerHTML = '<option value="">-- Chọn --</option>';
+            const uniqueOptions = [...new Set(options.filter(Boolean))];
+            uniqueOptions.forEach(option => {
+                const optionEl = document.createElement('option');
+                optionEl.value = option;
+                optionEl.textContent = option;
+                if (option === selectedValue) {
+                    optionEl.selected = true;
+                }
+                selectElement.appendChild(optionEl);
+            });
+        };
+
+        // === LOGIC AUTOCOMPLETE ĐỊA CHỈ ===
+        function initAutocomplete(inputElement) {
+            let currentFocus;
+            inputElement.addEventListener("input", function(e) {
+                const val = this.value;
+                closeAllLists();
+                if (!val) { return false; }
+                currentFocus = -1;
+                
+                const autocompleteList = document.createElement("div");
+                autocompleteList.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(autocompleteList);
+                
+                const filteredData = khuVucData.filter(item => item.phuongXa.toUpperCase().includes(val.toUpperCase()));
+                
+                filteredData.slice(0, 10).forEach(item => {
+                    const itemDiv = document.createElement("div");
+                    itemDiv.innerHTML = `<strong>${item.phuongXa.substr(0, val.length)}</strong>${item.phuongXa.substr(val.length)}`;
+                    itemDiv.dataset.phuongXa = item.phuongXa;
+                    itemDiv.dataset.tinhTp = item.tinhTp;
+                    
+                    itemDiv.addEventListener("click", function(e) {
+                        inputElement.value = this.dataset.phuongXa;
+                        const parentContainer = inputElement.closest('.grid');
+                        const tinhTpInput = parentContainer.querySelector('[data-field="tinhTp"]');
+                        if(tinhTpInput) tinhTpInput.value = this.dataset.tinhTp;
+                        closeAllLists();
+                    });
+                    autocompleteList.appendChild(itemDiv);
+                });
+            });
+
+            function closeAllLists(elmnt) {
+                const items = document.getElementsByClassName("autocomplete-items");
+                for (let i = 0; i < items.length; i++) {
+                    if (elmnt != items[i] && elmnt != inputElement) {
+                        items[i].parentNode.removeChild(items[i]);
+                    }
+                }
+            }
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
         }
-        
-        // ===== CÁC HÀM XỬ LÝ LOGIC CHÍNH =====
+
+
+        // === LOGIC THÊM KHÁCH HÀNG MỚI (MODAL) ===
+        function addNewCustomerRow() {
+            const container = document.getElementById('add-customer-rows');
+            const newRow = document.createElement('div');
+            newRow.className = 'customer-row border rounded-lg p-4 space-y-4';
+            newRow.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <p class="font-semibold text-gray-700">Thông tin khách hàng</p>
+                    <button class="remove-row-btn text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" placeholder="Tên KH (*)" class="border-gray-300 rounded-lg text-sm" data-field="tenKhachHang">
+                    <input type="tel" placeholder="SĐT" class="border-gray-300 rounded-lg text-sm" data-field="sdt">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div class="autocomplete-container">
+                        <input type="text" placeholder="Phường / Xã" class="w-full border-gray-300 rounded-lg text-sm autocomplete-input" data-field="phuongXa">
+                     </div>
+                     <input type="text" placeholder="Tỉnh / TP" class="border-gray-300 rounded-lg text-sm bg-gray-100" data-field="tinhTp" readonly>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="loaiXe"></select>
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="kenh"></select>
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="nguon"></select>
+                </div>
+            `;
+            container.appendChild(newRow);
+
+            // Populate dropdowns for the new row
+            populateSelect(newRow.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe);
+            populateSelect(newRow.querySelector('[data-field="kenh"]'), allDropdownData.kenh);
+            populateSelect(newRow.querySelector('[data-field="nguon"]'), allDropdownData.nguon);
+
+            // Init functionality for new row
+            newRow.querySelector('.remove-row-btn').addEventListener('click', () => newRow.remove());
+            initAutocomplete(newRow.querySelector('.autocomplete-input'));
+        }
+
         async function handleAddCustomers() {
             const submitBtn = document.getElementById('submit-add-btn');
             const originalBtnHtml = submitBtn.innerHTML;
             setButtonLoading(submitBtn, true, originalBtnHtml);
 
-            const rowsContainer = document.getElementById('add-customer-rows');
-            const customerRows = rowsContainer.querySelectorAll('.grid');
+            const customerRows = document.querySelectorAll('#add-customer-rows .customer-row');
             const newCustomers = [];
             customerRows.forEach(row => {
-                const nameInput = row.querySelector('[data-field="name"]');
+                const nameInput = row.querySelector('[data-field="tenKhachHang"]');
                 if (nameInput && nameInput.value.trim() !== '') {
                     newCustomers.push({
-                        name: nameInput.value.trim(), phone: row.querySelector('[data-field="phone"]').value.trim(),
-                        car: row.querySelector('[data-field="car"]').value.trim(), address: row.querySelector('[data-field="address"]').value.trim(),
+                        name: nameInput.value.trim(),
+                        phone: row.querySelector('[data-field="sdt"]').value.trim(),
+                        address: row.querySelector('[data-field="phuongXa"]').value.trim(),
+                        city: row.querySelector('[data-field="tinhTp"]').value.trim(),
+                        car: row.querySelector('[data-field="loaiXe"]').value,
+                        channel: row.querySelector('[data-field="kenh"]').value,
+                        source: row.querySelector('[data-field="nguon"]').value,
                     });
                 }
             });
@@ -331,8 +419,6 @@
             console.log("[ADD] Chuẩn bị gửi dữ liệu:", { newCustomers, userInfo: JSON.parse(sessionStorage.getItem('loggedInUser')) });
 
             try {
-                if (typeof CRM_APPS_SCRIPT_URL === 'undefined') throw new Error("Lỗi cấu hình: Không tìm thấy CRM_APPS_SCRIPT_URL.");
-
                 const res = await fetch(CRM_APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -343,33 +429,30 @@
                 });
 
                 if (!res.ok) throw new Error(`Lỗi mạng: ${res.statusText}`);
-                
                 const result = await res.json();
-                console.log("[ADD] Phản hồi từ server:", result);
+                
                 if (result.status === 'SUCCESS') {
                     showToast(result.message, true);
                     closeModal(document.getElementById('add-modal'));
-                    rowsContainer.innerHTML = '';
+                    document.getElementById('add-customer-rows').innerHTML = '';
                     setTimeout(() => { document.getElementById('filter-btn').click(); }, 1000);
-                } else {
-                    throw new Error(result.message || "Có lỗi xảy ra từ phía server.");
-                }
+                } else { throw new Error(result.message); }
 
             } catch (error) {
-                console.error("[ADD] Lỗi khi thêm khách hàng:", error);
                 showToast(`Lỗi: ${error.message}`, false);
             } finally {
                 setButtonLoading(submitBtn, false, originalBtnHtml);
             }
         }
         
+        // === LOGIC LỌC & HIỂN THỊ DANH SÁCH KHÁCH HÀNG ===
         async function handleFilterCustomers() {
             const filterBtn = document.getElementById('filter-btn');
             const originalBtnHtml = filterBtn.innerHTML;
             setButtonLoading(filterBtn, true, originalBtnHtml);
 
-            const statusMessage = document.getElementById('status-message');
             const tableBody = document.getElementById('customer-table-body');
+            const statusMessage = document.getElementById('status-message');
             tableBody.innerHTML = '';
             statusMessage.style.display = 'block'; 
             statusMessage.textContent = 'Đang tải dữ liệu...';
@@ -377,15 +460,10 @@
             const startDate = document.getElementById('start-date').value;
             const endDate = document.getElementById('end-date').value;
             
-            console.log("[GET] Lọc dữ liệu từ", startDate, "đến", endDate);
-            
             try {
-                if (typeof CRM_APPS_SCRIPT_URL === 'undefined') throw new Error("Lỗi cấu hình: Không tìm thấy CRM_APPS_SCRIPT_URL.");
-
                 const params = new URLSearchParams({
                     action: 'getCustomers',
-                    startDate: startDate,
-                    endDate: endDate,
+                    startDate: startDate, endDate: endDate,
                     userName: JSON.parse(sessionStorage.getItem('loggedInUser')).fullName,
                     callback: 'handleGetResponse'
                 });
@@ -396,37 +474,44 @@
                 window.handleGetResponse = (result) => {
                     console.log("[GET] Phản hồi từ server:", result);
                     if (result.status === 'SUCCESS') {
-                        renderCustomerTable(result.data);
-                    } else {
-                        throw new Error(result.message || "Server không phản hồi dữ liệu.");
-                    }
-                    setButtonLoading(filterBtn, false, originalBtnHtml);
+                        currentCustomers = result.data;
+                        renderCustomerTable(currentCustomers);
+                    } else { throw new Error(result.message); }
+                    
                     document.body.removeChild(script);
                     delete window.handleGetResponse;
                 };
-
-                script.onerror = () => {
-                    throw new Error("Không thể tải script từ Apps Script. Vui lòng kiểm tra lại URL và quyền truy cập.");
-                }
-                
+                script.onerror = () => { throw new Error("Lỗi tải script từ máy chủ."); }
                 document.body.appendChild(script);
 
             } catch(error) {
-                console.error("[GET] Lỗi khi lấy dữ liệu:", error);
                 statusMessage.textContent = `Lỗi: ${error.message}`;
-                setButtonLoading(filterBtn, false, originalBtnHtml);
+            } finally {
+                 setButtonLoading(filterBtn, false, originalBtnHtml);
             }
+        }
+
+        function handleSearch() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            if (!searchTerm) {
+                renderCustomerTable(currentCustomers);
+                return;
+            }
+            const filtered = currentCustomers.filter(customer => 
+                customer.tenKhachHang?.toLowerCase().includes(searchTerm) ||
+                customer.sdt?.toLowerCase().includes(searchTerm)
+            );
+            renderCustomerTable(filtered);
         }
         
         function renderCustomerTable(customers) {
-            currentCustomers = customers; 
             const tableBody = document.getElementById('customer-table-body');
             const statusMessage = document.getElementById('status-message');
             tableBody.innerHTML = '';
 
             if (!customers || customers.length === 0) {
                 statusMessage.style.display = 'block';
-                statusMessage.textContent = 'Không tìm thấy khách hàng nào trong khoảng thời gian đã chọn.';
+                statusMessage.textContent = 'Không tìm thấy khách hàng nào.';
                 return;
             }
 
@@ -451,13 +536,12 @@
                 row.addEventListener('click', () => {
                     const rowIndex = parseInt(row.dataset.rowIndex);
                     const customerData = currentCustomers.find(c => c.rowIndex === rowIndex);
-                    if (customerData) {
-                        openEditModal(customerData);
-                    }
+                    if (customerData) openEditModal(customerData);
                 });
             });
         }
         
+        // === LOGIC CHỈNH SỬA & CẬP NHẬT KHÁCH HÀNG (MODAL) ===
         function openEditModal(customerData) {
             const editModal = document.getElementById('edit-modal');
             const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
@@ -466,10 +550,19 @@
             document.getElementById('edit-user-name').textContent = user.fullName;
             document.getElementById('edit-user-department').textContent = user.department;
             
-            editModal.querySelectorAll('[data-field]').forEach(input => {
+            // Populate regular inputs
+            editModal.querySelectorAll('input[data-field]').forEach(input => {
                 const fieldName = input.dataset.field;
                 input.value = customerData[fieldName] || '';
             });
+
+            // Populate select dropdowns
+            populateSelect(editModal.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe, customerData.loaiXe);
+            populateSelect(editModal.querySelector('[data-field="kenh"]'), allDropdownData.kenh, customerData.kenh);
+            populateSelect(editModal.querySelector('[data-field="nguon"]'), allDropdownData.nguon, customerData.nguon);
+            populateSelect(editModal.querySelector('[data-field="trangThai"]'), allDropdownData.trangThai, customerData.trangThai);
+            populateSelect(editModal.querySelector('[data-field="phanLoaiKH"]'), allDropdownData.phanLoaiKH, customerData.phanLoaiKH);
+            populateSelect(editModal.querySelector('[data-field="laiThu"]'), allDropdownData.laiThu, customerData.laiThu);
 
             document.getElementById('edit-notes-timeline').textContent = customerData.fullGhiChu || 'Chưa có ghi chú nào.';
             document.getElementById('edit-new-note').value = '';
@@ -486,7 +579,7 @@
             const newNote = document.getElementById('edit-new-note').value;
 
             const updatedData = {};
-            document.getElementById('edit-modal').querySelectorAll('[data-field]').forEach(input => {
+            document.getElementById('edit-form-container').querySelectorAll('[data-field]').forEach(input => {
                 updatedData[input.dataset.field] = input.value;
             });
 
@@ -500,11 +593,7 @@
                 }
             };
             
-            console.log("[UPDATE] Chuẩn bị gửi dữ liệu:", payload);
-
             try {
-                if (typeof CRM_APPS_SCRIPT_URL === 'undefined') throw new Error("Lỗi cấu hình URL.");
-
                 const res = await fetch(CRM_APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -512,25 +601,47 @@
                 });
 
                 if (!res.ok) throw new Error(`Lỗi mạng: ${res.statusText}`);
-                
                 const result = await res.json();
-                console.log("[UPDATE] Phản hồi từ server:", result);
+
                 if (result.status === 'SUCCESS') {
                     showToast(result.message, true);
                     closeModal(document.getElementById('edit-modal'));
-                    handleFilterCustomers(); // Tải lại dữ liệu
-                } else {
-                    throw new Error(result.message || "Lỗi không xác định từ server.");
-                }
+                    handleFilterCustomers();
+                } else { throw new Error(result.message); }
             } catch (error) {
-                console.error("[UPDATE] Lỗi khi cập nhật:", error);
                 showToast(`Lỗi: ${error.message}`, false);
             } finally {
                 setButtonLoading(updateBtn, false, originalBtnHtml);
             }
         }
         
-        // === GÁN SỰ KIỆN KHI TRANG ĐÃ TẢI XONG ===
+        // === KHỞI TẠO & GÁN SỰ KIỆN ===
+        async function loadInitialData() {
+            console.log("Đang tải dữ liệu ban đầu cho dropdowns...");
+            try {
+                 const params = new URLSearchParams({
+                    action: 'getDropdownData',
+                    callback: 'handleDropdownDataResponse'
+                });
+                const script = document.createElement('script');
+                script.src = `${CRM_APPS_SCRIPT_URL}?${params.toString()}`;
+
+                window.handleDropdownDataResponse = (result) => {
+                    if (result.status === 'SUCCESS') {
+                        allDropdownData = result.data.cacNguon;
+                        khuVucData = result.data.khuVuc;
+                        console.log("Tải thành công dữ liệu dropdowns và khu vực.");
+                    } else { throw new Error(result.message); }
+                    document.body.removeChild(script);
+                    delete window.handleDropdownDataResponse;
+                };
+                script.onerror = () => { throw new Error("Lỗi tải script dropdown."); }
+                document.body.appendChild(script);
+            } catch(error) {
+                showToast(`Lỗi tải dữ liệu nền: ${error.message}`, false);
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             // --- Logic Menu & User Info ---
             const burgerButton = document.getElementById('burger-button');
@@ -557,57 +668,44 @@
             const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
             if (!user) { window.location.href = 'index.html'; return; }
 
-            const userNameNav = document.getElementById('user-name-nav');
-            const userDepartmentNav = document.getElementById('user-department-nav');
-            const userNameMobile = document.getElementById('user-name-mobile');
-            const userDepartmentMobile = document.getElementById('user-department-mobile');
-            const fullName = user.fullName || 'Chưa có tên';
-            const department = user.department || 'Chưa có phòng ban';
-            userNameNav.textContent = fullName;
-            userDepartmentNav.textContent = department;
-            userNameMobile.textContent = fullName;
-            userDepartmentMobile.textContent = department;
-            
-            const logout = () => {
-                sessionStorage.removeItem('loggedInUser');
-                window.location.href = 'index.html';
-            };
+            ['nav', 'mobile'].forEach(p => {
+                document.getElementById(`user-name-${p}`).textContent = user.fullName || 'Chưa có tên';
+                document.getElementById(`user-department-${p}`).textContent = user.department || 'Chưa có phòng ban';
+            });
+            const logout = () => { sessionStorage.removeItem('loggedInUser'); window.location.href = 'index.html'; };
             document.getElementById('logout-button-desktop').addEventListener('click', logout);
             document.getElementById('logout-button-mobile').addEventListener('click', logout);
             
             // ========== CODE CHO TRANG CRM ==========
-            const filterBtn = document.getElementById('filter-btn');
-            filterBtn.addEventListener('click', handleFilterCustomers);
+            document.getElementById('filter-btn').addEventListener('click', handleFilterCustomers);
+            document.getElementById('search-input').addEventListener('input', handleSearch);
 
             // Gán sự kiện cho modal Thêm mới
-            const openAddModalBtn = document.getElementById('open-add-modal-btn');
             const addModal = document.getElementById('add-modal');
-            const closeAddModalBtn = document.getElementById('close-add-modal-btn');
-            const addNewRowBtn = document.getElementById('add-new-row-btn');
-            const submitAddBtn = document.getElementById('submit-add-btn');
-
-            openAddModalBtn.addEventListener('click', () => { openModal(addModal); if (document.getElementById('add-customer-rows').children.length === 0) addNewCustomerRow(); });
-            closeAddModalBtn.addEventListener('click', () => closeModal(addModal));
-            addNewRowBtn.addEventListener('click', addNewCustomerRow);
-            submitAddBtn.addEventListener('click', handleAddCustomers);
+            document.getElementById('open-add-modal-btn').addEventListener('click', () => { 
+                openModal(addModal); 
+                if (document.getElementById('add-customer-rows').children.length === 0) addNewCustomerRow(); 
+            });
+            document.getElementById('close-add-modal-btn').addEventListener('click', () => closeModal(addModal));
+            document.getElementById('add-new-row-btn').addEventListener('click', addNewCustomerRow);
+            document.getElementById('submit-add-btn').addEventListener('click', handleAddCustomers);
 
             // Gán sự kiện cho modal Chỉnh sửa
             const editModal = document.getElementById('edit-modal');
-            const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
-            const closeEditModalBtnFooter = document.getElementById('close-edit-modal-btn-footer');
-            const submitUpdateBtn = document.getElementById('submit-update-btn');
-
-            closeEditModalBtn.addEventListener('click', () => closeModal(editModal));
-            closeEditModalBtnFooter.addEventListener('click', () => closeModal(editModal));
-            submitUpdateBtn.addEventListener('click', handleUpdateCustomer);
+            document.getElementById('close-edit-modal-btn').addEventListener('click', () => closeModal(editModal));
+            document.getElementById('close-edit-modal-btn-footer').addEventListener('click', () => closeModal(editModal));
+            document.getElementById('submit-update-btn').addEventListener('click', handleUpdateCustomer);
+            initAutocomplete(document.querySelector('#edit-form-container .autocomplete-input'));
 
             // Thiết lập ngày mặc định và chạy filter lần đầu
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('start-date').value = today;
             document.getElementById('end-date').value = today;
-            handleFilterCustomers();
+            
+            loadInitialData().then(() => {
+                handleFilterCustomers();
+            });
         });
     </script>
 </body>
 </html>
-
