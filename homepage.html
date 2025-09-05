@@ -12,7 +12,6 @@
             background-color: #f0f2f5; 
         }
         
-        /* === CSS cho Hiệu ứng Menu Nâng cao === */
         body.menu-is-open { overflow: hidden; }
         .burger-line { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
         .menu-is-open .burger-line-middle { opacity: 0; }
@@ -44,9 +43,7 @@
                 <a href="ghepxe.html" class="text-gray-700 hover:text-red-600 transition-colors">Ghép xe</a>
                 <a href="vanban.html" class="text-gray-700 hover:text-red-600 transition-colors">Văn bản</a>
                 <a href="hoatdong.html" class="text-gray-700 hover:text-red-600 transition-colors">Hoạt động</a>
-                
                 <div class="h-6 w-px bg-gray-200"></div>
-
                 <div class="flex items-center space-x-4">
                     <div class="text-right">
                         <p id="user-name-nav" class="font-semibold text-gray-800 leading-tight">Tên Nhân Viên</p>
@@ -68,7 +65,7 @@
         </div>
     </nav>
 
-    <div id="mobile-menu-container" class="fixed inset-0 z-30 pointer-events-none">
+    <div id="mobile-menu-container" class="fixed inset-0 z-50 pointer-events-none">
         <div id="menu-overlay" class="absolute inset-0 bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 ease-in-out"></div>
 
         <div id="mobile-menu" class="absolute top-0 right-0 h-full w-full max-w-xs bg-white shadow-xl transform translate-x-full transition-transform duration-300 ease-in-out">
@@ -103,14 +100,12 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM Elements ---
             const burgerButton = document.getElementById('burger-button');
             const mobileMenuContainer = document.getElementById('mobile-menu-container');
             const mobileMenu = document.getElementById('mobile-menu');
             const menuOverlay = document.getElementById('menu-overlay');
             const body = document.body;
 
-            // --- Menu Mobile Logic ---
             const toggleMenu = () => {
                 body.classList.toggle('menu-is-open');
                 if (body.classList.contains('menu-is-open')) {
@@ -126,7 +121,7 @@
             burgerButton.addEventListener('click', toggleMenu);
             menuOverlay.addEventListener('click', toggleMenu);
 
-            // --- Logic hiển thị thông tin người dùng và bảo vệ route ---
+            // Logic hiển thị thông tin người dùng
             const userNameNav = document.getElementById('user-name-nav');
             const userDepartmentNav = document.getElementById('user-department-nav');
             const userNameMobile = document.getElementById('user-name-mobile');
@@ -138,13 +133,10 @@
                     const userData = JSON.parse(loggedInUser);
                     const fullName = userData.fullName || 'Chưa có tên';
                     const department = userData.department || 'Chưa có phòng ban';
-
-                    // Cập nhật thông tin trên cả desktop và mobile
                     userNameNav.textContent = fullName;
                     userDepartmentNav.textContent = department;
                     userNameMobile.textContent = fullName;
                     userDepartmentMobile.textContent = department;
-
                 } catch (e) {
                     console.error("Lỗi khi parse thông tin người dùng:", e);
                 }
@@ -152,7 +144,7 @@
                 window.location.href = 'index.html'; 
             }
 
-            // --- Logic Đăng xuất ---
+            // Logic Đăng xuất
             const logout = () => {
                 sessionStorage.removeItem('loggedInUser');
                 window.location.href = 'index.html';
