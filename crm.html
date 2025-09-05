@@ -407,13 +407,14 @@
             customers.forEach(customer => {
                 const row = document.createElement('tr');
                 row.className = 'bg-white border-b clickable-row';
+                // *** ĐÃ SỬA LỖI TẠI ĐÂY ***
                 row.innerHTML = `
-                    <td class="px-6 py-4">${customer.ngay_tao ? new Date(customer.ngay_tao).toLocaleDateString('vi-VN') : ''}</td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${customer.ten_khach_hang || ''}</td>
-                    <td class="px-6 py-4">${customer.loai_xe || ''}</td>
-                    <td class="px-6 py-4">${customer.trang_thai || ''}</td>
-                    <td class="px-6 py-4">${customer.phan_loai_kh || ''}</td>
-                    <td class="px-6 py-4">${customer.ghi_chu || ''}</td>
+                    <td class="px-6 py-4">${customer.ngayTao ? new Date(customer.ngayTao).toLocaleDateString('vi-VN') : ''}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${customer.tenKhachHang || ''}</td>
+                    <td class="px-6 py-4">${customer.loaiXe || ''}</td>
+                    <td class="px-6 py-4">${customer.trangThai || ''}</td>
+                    <td class="px-6 py-4">${customer.phanLoaiKH || ''}</td>
+                    <td class="px-6 py-4">${customer.ghiChu || ''}</td>
                 `;
                 tableBody.appendChild(row);
             });
