@@ -59,32 +59,26 @@
         }
 
        @keyframes drive-around {
-            /* Bắt đầu góc trên-trái, xe quay mặt sang phải */
-            0% { top: -25px; left: -55px; transform: rotate(0deg); } 
+            /* === Giai đoạn 1: Đi sang phải === */
+            0%   { top: -25px; left: -55px; transform: rotate(0deg) scaleX(1); }
+            24%  { top: -25px; left: calc(100% - 15px); transform: rotate(0deg) scaleX(1); }
             
-            /* Chạy sang phải */
-            24% { top: -25px; left: calc(100% - 15px); transform: rotate(0deg); } 
+            /* === Giai đoạn 2: Đi xuống dưới === */
+            25%  { transform: rotate(90deg) scaleX(1); }
+            49%  { top: calc(100% - 25px); left: calc(100% - 15px); transform: rotate(90deg) scaleX(1); }
             
-            /* Quay đầu xuống dưới (90 độ) */
-            25% { transform: rotate(90deg); }
+            /* === Giai đoạn 3: Đi sang trái (đã sửa lỗi lật ngược) === */
+            /* Tại đây, thay vì xoay 180 độ, chúng ta sẽ lật ngang chiếc xe */
+            50%  { transform: rotate(0deg) scaleX(-1); }
+            74%  { top: calc(100% - 25px); left: -55px; transform: rotate(0deg) scaleX(-1); }
             
-            /* Chạy xuống dưới */
-            49% { top: calc(100% - 25px); left: calc(100% - 15px); transform: rotate(90deg); } 
-            
-            /* Quay đầu sang trái (180 độ) */
-            50% { transform: rotate(180deg); }
-            
-            /* Chạy sang trái */
-            74% { top: calc(100% - 25px); left: -55px; transform: rotate(180deg); } 
-            
-            /* Quay đầu lên trên (270 độ) */
-            75% { transform: rotate(270deg); }
-            
-            /* Chạy lên trên */
-            99% { top: -25px; left: -55px; transform: rotate(270deg); } 
-            
-            /* Hoàn thành vòng lặp, quay về hướng ban đầu (0 độ hoặc 360 độ) */
-            100% { top: -25px; left: -55px; transform: rotate(360deg); }
+            /* === Giai đoạn 4: Đi lên trên (đã sửa lỗi lật ngược) === */
+            /* Tương tự, chúng ta sẽ lật ngang và xoay 90 độ */
+            75%  { transform: rotate(90deg) scaleX(-1); }
+            99%  { top: -25px; left: -55px; transform: rotate(90deg) scaleX(-1); }
+
+            /* Hoàn thành vòng lặp */
+            100% { top: -25px; left: -55px; transform: rotate(0deg) scaleX(1); }
         }
     </style>
 </head>
