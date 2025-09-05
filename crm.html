@@ -47,44 +47,43 @@
             width: 50px;
             height: 50px;
             z-index: 10;
-            font-size: 40px; /* Kích thước của emoji */
-            line-height: 50px; /* Căn emoji vào giữa theo chiều dọc */
-            text-align: center; /* Căn emoji vào giữa theo chiều ngang */
+            font-size: 40px; 
+            line-height: 50px; 
+            text-align: center; 
             
-            /* Bỏ các thuộc tính không cần thiết cho emoji */
-            /* content: '🚗'; <-- Dòng này sai và đã được xóa */
             background-image: none; 
 
-            /* Giữ lại animation */
+            /* Thêm dòng này để xoay hình ảnh icon mượt mà hơn */
+            transition: transform 0.1s linear; 
             animation: drive-around 15s linear infinite;
         }
 
        @keyframes drive-around {
-            /* Bắt đầu góc trên-trái, xe chạy ra ngoài hẳn */
-            0% { top: -25px; left: -55px; transform: rotate(0deg); } /* Xe quay mặt sang phải */
+            /* Bắt đầu góc trên-trái, xe quay mặt sang phải */
+            0% { top: -25px; left: -55px; transform: rotate(0deg); } 
             
             /* Chạy sang phải */
-            24% { top: -25px; left: calc(100% - 15px); transform: rotate(0deg); } /* Dừng ở góc trên-phải */
+            24% { top: -25px; left: calc(100% - 15px); transform: rotate(0deg); } 
             
-            /* Quay đầu xuống dưới */
+            /* Quay đầu xuống dưới (90 độ) */
             25% { transform: rotate(90deg); }
             
             /* Chạy xuống dưới */
-            49% { top: calc(100% - 25px); left: calc(100% - 15px); transform: rotate(90deg); } /* Dừng ở góc dưới-phải */
+            49% { top: calc(100% - 25px); left: calc(100% - 15px); transform: rotate(90deg); } 
             
-            /* Quay đầu sang trái */
+            /* Quay đầu sang trái (180 độ) */
             50% { transform: rotate(180deg); }
             
             /* Chạy sang trái */
-            74% { top: calc(100% - 25px); left: -55px; transform: rotate(180deg); } /* Dừng ở góc dưới-trái */
+            74% { top: calc(100% - 25px); left: -55px; transform: rotate(180deg); } 
             
-            /* Quay đầu lên trên */
+            /* Quay đầu lên trên (270 độ) */
             75% { transform: rotate(270deg); }
             
             /* Chạy lên trên */
-            99% { top: -25px; left: -55px; transform: rotate(270deg); } /* Dừng ở góc trên-trái */
+            99% { top: -25px; left: -55px; transform: rotate(270deg); } 
             
-            /* Hoàn thành vòng lặp (về lại vị trí ban đầu nhưng quay về hướng ban đầu) */
+            /* Hoàn thành vòng lặp, quay về hướng ban đầu (0 độ hoặc 360 độ) */
             100% { top: -25px; left: -55px; transform: rotate(360deg); }
         }
     </style>
