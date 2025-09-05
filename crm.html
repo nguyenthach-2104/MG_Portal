@@ -33,8 +33,9 @@
         .clickable-row:hover { background-color: #f9fafb; cursor: pointer; }
         /* Autocomplete Styles */
         .autocomplete-container { position: relative; }
-        .autocomplete-items { position: absolute; border: 1px solid #d1d5db; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background-color: white; }
-        .autocomplete-items div { padding: 8px 12px; cursor: pointer; }
+        .autocomplete-items { position: absolute; border: 1px solid #d1d5db; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background-color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .autocomplete-items div { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #e5e7eb; }
+        .autocomplete-items div:last-child { border-bottom: none; }
         .autocomplete-items div:hover { background-color: #f3f4f6; }
     </style>
 </head>
@@ -291,6 +292,7 @@
         };
 
         const populateSelect = (selectElement, options, selectedValue) => {
+            if (!selectElement || !Array.isArray(options)) return;
             selectElement.innerHTML = '<option value="">-- Chọn --</option>';
             const uniqueOptions = [...new Set(options.filter(Boolean))];
             uniqueOptions.forEach(option => {
@@ -306,30 +308,28 @@
 
         // === LOGIC AUTOCOMPLETE ĐỊA CHỈ ===
         function initAutocomplete(inputElement) {
-            let currentFocus;
             inputElement.addEventListener("input", function(e) {
                 const val = this.value;
                 closeAllLists();
-                if (!val) { return false; }
-                currentFocus = -1;
+                if (!val) return false;
                 
                 const autocompleteList = document.createElement("div");
                 autocompleteList.setAttribute("class", "autocomplete-items");
                 this.parentNode.appendChild(autocompleteList);
                 
-                const filteredData = khuVucData.filter(item => item.phuongXa.toUpperCase().includes(val.toUpperCase()));
+                const filteredData = khuVucData.filter(item => 
+                    item.phuongXa.toUpperCase().includes(val.toUpperCase())
+                );
                 
                 filteredData.slice(0, 10).forEach(item => {
                     const itemDiv = document.createElement("div");
-                    itemDiv.innerHTML = `<strong>${item.phuongXa.substr(0, val.length)}</strong>${item.phuongXa.substr(val.length)}`;
-                    itemDiv.dataset.phuongXa = item.phuongXa;
-                    itemDiv.dataset.tinhTp = item.tinhTp;
+                    itemDiv.innerHTML = item.phuongXa.replace(new RegExp(val, "gi"), (match) => `<strong>${match}</strong>`);
                     
-                    itemDiv.addEventListener("click", function(e) {
-                        inputElement.value = this.dataset.phuongXa;
-                        const parentContainer = inputElement.closest('.grid');
+                    itemDiv.addEventListener("click", function() {
+                        inputElement.value = item.phuongXa;
+                        const parentContainer = inputElement.closest('.customer-row, #edit-form-container');
                         const tinhTpInput = parentContainer.querySelector('[data-field="tinhTp"]');
-                        if(tinhTpInput) tinhTpInput.value = this.dataset.tinhTp;
+                        if(tinhTpInput) tinhTpInput.value = item.tinhTp;
                         closeAllLists();
                     });
                     autocompleteList.appendChild(itemDiv);
@@ -338,15 +338,13 @@
 
             function closeAllLists(elmnt) {
                 const items = document.getElementsByClassName("autocomplete-items");
-                for (let i = 0; i < items.length; i++) {
+                for (let i = items.length - 1; i >= 0; i--) {
                     if (elmnt != items[i] && elmnt != inputElement) {
                         items[i].parentNode.removeChild(items[i]);
                     }
                 }
             }
-            document.addEventListener("click", function (e) {
-                closeAllLists(e.target);
-            });
+            document.addEventListener("click", (e) => closeAllLists(e.target));
         }
 
 
@@ -354,12 +352,10 @@
         function addNewCustomerRow() {
             const container = document.getElementById('add-customer-rows');
             const newRow = document.createElement('div');
-            newRow.className = 'customer-row border rounded-lg p-4 space-y-4';
+            newRow.className = 'customer-row border rounded-lg p-4 space-y-4 relative';
             newRow.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <p class="font-semibold text-gray-700">Thông tin khách hàng</p>
-                    <button class="remove-row-btn text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
-                </div>
+                <button type="button" class="remove-row-btn absolute top-2 right-2 text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+                <p class="font-semibold text-gray-700">Thông tin khách hàng mới</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" placeholder="Tên KH (*)" class="border-gray-300 rounded-lg text-sm" data-field="tenKhachHang">
                     <input type="tel" placeholder="SĐT" class="border-gray-300 rounded-lg text-sm" data-field="sdt">
@@ -371,20 +367,16 @@
                      <input type="text" placeholder="Tỉnh / TP" class="border-gray-300 rounded-lg text-sm bg-gray-100" data-field="tinhTp" readonly>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <select class="border-gray-300 rounded-lg text-sm" data-field="loaiXe"></select>
-                    <select class="border-gray-300 rounded-lg text-sm" data-field="kenh"></select>
-                    <select class="border-gray-300 rounded-lg text-sm" data-field="nguon"></select>
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="loaiXe"><option>Loại xe</option></select>
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="kenh"><option>Kênh</option></select>
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="nguon"><option>Nguồn</option></select>
                 </div>
             `;
             container.appendChild(newRow);
 
-            // Populate dropdowns for the new row
             populateSelect(newRow.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe);
             populateSelect(newRow.querySelector('[data-field="kenh"]'), allDropdownData.kenh);
             populateSelect(newRow.querySelector('[data-field="nguon"]'), allDropdownData.nguon);
-
-            // Init functionality for new row
-            newRow.querySelector('.remove-row-btn').addEventListener('click', () => newRow.remove());
             initAutocomplete(newRow.querySelector('.autocomplete-input'));
         }
 
@@ -415,8 +407,6 @@
                 setButtonLoading(submitBtn, false, originalBtnHtml);
                 return;
             }
-
-            console.log("[ADD] Chuẩn bị gửi dữ liệu:", { newCustomers, userInfo: JSON.parse(sessionStorage.getItem('loggedInUser')) });
 
             try {
                 const res = await fetch(CRM_APPS_SCRIPT_URL, {
@@ -472,10 +462,11 @@
                 script.src = `${CRM_APPS_SCRIPT_URL}?${params.toString()}`;
                 
                 window.handleGetResponse = (result) => {
-                    console.log("[GET] Phản hồi từ server:", result);
                     if (result.status === 'SUCCESS') {
                         currentCustomers = result.data;
                         renderCustomerTable(currentCustomers);
+                        // Kích hoạt lại bộ lọc tìm kiếm trên dữ liệu mới
+                        handleSearch(); 
                     } else { throw new Error(result.message); }
                     
                     document.body.removeChild(script);
@@ -493,14 +484,12 @@
 
         function handleSearch() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            if (!searchTerm) {
-                renderCustomerTable(currentCustomers);
-                return;
-            }
-            const filtered = currentCustomers.filter(customer => 
-                customer.tenKhachHang?.toLowerCase().includes(searchTerm) ||
-                customer.sdt?.toLowerCase().includes(searchTerm)
-            );
+            const filtered = searchTerm 
+                ? currentCustomers.filter(customer => 
+                    String(customer.tenKhachHang || '').toLowerCase().includes(searchTerm) ||
+                    String(customer.sdt || '').toLowerCase().includes(searchTerm)
+                  )
+                : currentCustomers;
             renderCustomerTable(filtered);
         }
         
@@ -511,7 +500,10 @@
 
             if (!customers || customers.length === 0) {
                 statusMessage.style.display = 'block';
-                statusMessage.textContent = 'Không tìm thấy khách hàng nào.';
+                const searchTerm = document.getElementById('search-input').value;
+                statusMessage.textContent = searchTerm 
+                    ? `Không tìm thấy khách hàng nào khớp với "${searchTerm}".`
+                    : 'Không có dữ liệu trong khoảng thời gian đã chọn.';
                 return;
             }
 
@@ -550,13 +542,11 @@
             document.getElementById('edit-user-name').textContent = user.fullName;
             document.getElementById('edit-user-department').textContent = user.department;
             
-            // Populate regular inputs
-            editModal.querySelectorAll('input[data-field]').forEach(input => {
-                const fieldName = input.dataset.field;
-                input.value = customerData[fieldName] || '';
+            editModal.querySelectorAll('[data-field]').forEach(inputOrSelect => {
+                const fieldName = inputOrSelect.dataset.field;
+                inputOrSelect.value = customerData[fieldName] || '';
             });
 
-            // Populate select dropdowns
             populateSelect(editModal.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe, customerData.loaiXe);
             populateSelect(editModal.querySelector('[data-field="kenh"]'), allDropdownData.kenh, customerData.kenh);
             populateSelect(editModal.querySelector('[data-field="nguon"]'), allDropdownData.nguon, customerData.nguon);
@@ -617,7 +607,6 @@
         
         // === KHỞI TẠO & GÁN SỰ KIỆN ===
         async function loadInitialData() {
-            console.log("Đang tải dữ liệu ban đầu cho dropdowns...");
             try {
                  const params = new URLSearchParams({
                     action: 'getDropdownData',
@@ -630,7 +619,6 @@
                     if (result.status === 'SUCCESS') {
                         allDropdownData = result.data.cacNguon;
                         khuVucData = result.data.khuVuc;
-                        console.log("Tải thành công dữ liệu dropdowns và khu vực.");
                     } else { throw new Error(result.message); }
                     document.body.removeChild(script);
                     delete window.handleDropdownDataResponse;
@@ -644,29 +632,20 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             // --- Logic Menu & User Info ---
-            const burgerButton = document.getElementById('burger-button');
-            const mobileMenuContainer = document.getElementById('mobile-menu-container');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const menuOverlay = document.getElementById('menu-overlay');
-            const body = document.body;
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) { window.location.href = 'index.html'; return; }
             
+            const burgerButton = document.getElementById('burger-button');
+            const menuOverlay = document.getElementById('menu-overlay');
             const toggleMenu = () => {
-                body.classList.toggle('menu-is-open');
-                if (body.classList.contains('menu-is-open')) {
-                    mobileMenuContainer.classList.remove('pointer-events-none');
-                    menuOverlay.classList.remove('opacity-0');
-                    mobileMenu.classList.remove('translate-x-full');
-                } else {
-                    menuOverlay.classList.add('opacity-0');
-                    mobileMenu.classList.add('translate-x-full');
-                    setTimeout(() => { mobileMenuContainer.classList.add('pointer-events-none'); }, 300);
-                }
+                document.body.classList.toggle('menu-is-open');
+                const isOpen = document.body.classList.contains('menu-is-open');
+                document.getElementById('mobile-menu-container').classList.toggle('pointer-events-none', !isOpen);
+                menuOverlay.classList.toggle('opacity-0', !isOpen);
+                document.getElementById('mobile-menu').classList.toggle('translate-x-full', !isOpen);
             };
             burgerButton.addEventListener('click', toggleMenu);
             menuOverlay.addEventListener('click', toggleMenu);
-
-            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
-            if (!user) { window.location.href = 'index.html'; return; }
 
             ['nav', 'mobile'].forEach(p => {
                 document.getElementById(`user-name-${p}`).textContent = user.fullName || 'Chưa có tên';
@@ -689,6 +668,12 @@
             document.getElementById('close-add-modal-btn').addEventListener('click', () => closeModal(addModal));
             document.getElementById('add-new-row-btn').addEventListener('click', addNewCustomerRow);
             document.getElementById('submit-add-btn').addEventListener('click', handleAddCustomers);
+            // Sử dụng event delegation cho nút xóa
+            document.getElementById('add-customer-rows').addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('remove-row-btn')) {
+                    e.target.closest('.customer-row').remove();
+                }
+            });
 
             // Gán sự kiện cho modal Chỉnh sửa
             const editModal = document.getElementById('edit-modal');
@@ -697,7 +682,7 @@
             document.getElementById('submit-update-btn').addEventListener('click', handleUpdateCustomer);
             initAutocomplete(document.querySelector('#edit-form-container .autocomplete-input'));
 
-            // Thiết lập ngày mặc định và chạy filter lần đầu
+            // Thiết lập ngày mặc định, tải dữ liệu nền và chạy filter lần đầu
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('start-date').value = today;
             document.getElementById('end-date').value = today;
