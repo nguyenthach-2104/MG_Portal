@@ -329,7 +329,7 @@
                 
                 const result = await res.json();
                 console.log("[ADD] Phản hồi từ server:", result);
-                if (result.success) {
+                if (result.status === 'SUCCESS') {
                     showToast(result.message, true);
                     document.getElementById('close-add-modal-btn').click();
                     rowsContainer.innerHTML = '';
@@ -354,7 +354,7 @@
             const statusMessage = document.getElementById('status-message');
             const tableBody = document.getElementById('customer-table-body');
             tableBody.innerHTML = '';
-            statusMessage.style.display = 'block'; // Hiển thị lại status
+            statusMessage.style.display = 'block'; 
             statusMessage.textContent = 'Đang tải dữ liệu...';
 
             const startDate = document.getElementById('start-date').value;
@@ -378,7 +378,7 @@
                 const result = await res.json();
                 console.log("[GET] Phản hồi từ server:", result);
                 
-                if (result.success) {
+                if (result.status === 'SUCCESS') {
                     renderCustomerTable(result.data);
                 } else {
                     throw new Error(result.message || "Server không phản hồi dữ liệu.");
@@ -407,8 +407,6 @@
             customers.forEach(customer => {
                 const row = document.createElement('tr');
                 row.className = 'bg-white border-b clickable-row';
-                // *** SỬA LỖI TẠI ĐÂY ***
-                // Sử dụng key đã được chuẩn hóa (chữ thường, có gạch dưới)
                 row.innerHTML = `
                     <td class="px-6 py-4">${customer.ngay_tao ? new Date(customer.ngay_tao).toLocaleDateString('vi-VN') : ''}</td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${customer.ten_khach_hang || ''}</td>
