@@ -118,17 +118,17 @@
     </footer>
 
     <script>
-        // Optional: Client-side check for admin status if direct access is attempted
         document.addEventListener('DOMContentLoaded', () => {
             const loggedInUser = sessionStorage.getItem('loggedInUser');
             if (loggedInUser) {
                 const user = JSON.parse(loggedInUser);
-                if (user.department.toLowerCase() !== 'quản lý' && !user.username.toLowerCase().startsWith('m-')) {
-                    // If not an admin, redirect them away
+                // SỬA LỖI: Kiểm tra "Phòng ban" thay vì "Tên đăng nhập"
+                if (user.department.toLowerCase() !== 'quản lý' && !user.department.toLowerCase().startsWith('m-')) {
+                    // Nếu không phải admin, chuyển hướng đi
                     window.location.href = 'homepage.html';
                 }
             } else {
-                // If not logged in, redirect to login page
+                // Nếu chưa đăng nhập, chuyển về trang login
                 window.location.href = 'index.html';
             }
         });
