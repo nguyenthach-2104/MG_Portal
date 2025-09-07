@@ -501,28 +501,70 @@
 
             const customerRows = document.querySelectorAll('#add-customer-rows .customer-row');
             const newCustomers = [];
+            let allRowsValid = true;
+
+            // --- BƯỚC 1: KIỂM TRA DỮ LIỆU (VALIDATION) ---
+            // Đầu tiên, xóa các cảnh báo viền đỏ cũ (nếu có)
             customerRows.forEach(row => {
-                const nameInput = row.querySelector('[data-field="tenKhachHang"]');
-                if (nameInput && nameInput.value.trim() !== '') {
-                    newCustomers.push({
-                        name: nameInput.value.trim(),
-                        phone: row.querySelector('[data-field="sdt"]').value.trim(),
-                        address: row.querySelector('[data-field="phuongXa"]').value.trim(),
-                        city: row.querySelector('[data-field="tinhTp"]').value.trim(),
-                        car: row.querySelector('[data-field="loaiXe"]').value,
-                        color: row.querySelector('[data-field="mauXe"]').value, // <-- Lấy dữ liệu Màu Xe
-                        channel: row.querySelector('[data-field="kenh"]').value,
-                        source: row.querySelector('[data-field="nguon"]').value,
-                    });
-                }
+                row.querySelectorAll('[data-field="tenKhachHang"], [data-field="sdt"], [data-field="loaiXe"]').forEach(input => {
+                    input.classList.remove('border-red-500', 'border-2');
+                });
             });
 
+            // Lặp qua từng hàng để kiểm tra
+            for (const row of customerRows) {
+                const nameInput = row.querySelector('[data-field="tenKhachHang"]');
+                const phoneInput = row.querySelector('[data-field="sdt"]');
+                const carInput = row.querySelector('[data-field="loaiXe"]');
+                let rowIsValid = true;
+
+                if (!nameInput.value.trim()) {
+                    nameInput.classList.add('border-red-500', 'border-2');
+                    rowIsValid = false;
+                }
+                if (!phoneInput.value.trim()) {
+                    phoneInput.classList.add('border-red-500', 'border-2');
+                    rowIsValid = false;
+                }
+                if (!carInput.value) { // Đối với dropdown, chỉ cần kiểm tra có giá trị được chọn không
+                    carInput.classList.add('border-red-500', 'border-2');
+                    rowIsValid = false;
+                }
+
+                if (!rowIsValid) {
+                    allRowsValid = false;
+                }
+            }
+
+            // Nếu có bất kỳ hàng nào không hợp lệ, dừng lại và thông báo
+            if (!allRowsValid) {
+                showToast("Vui lòng điền đủ Tên KH, SĐT và Loại xe cho tất cả khách hàng.", false);
+                setButtonLoading(submitBtn, false, originalBtnHtml);
+                return; 
+            }
+
+            // --- BƯỚC 2: TỔNG HỢP DỮ LIỆU NẾU TẤT CẢ ĐỀU HỢP LỆ ---
+            customerRows.forEach(row => {
+                newCustomers.push({
+                    name: row.querySelector('[data-field="tenKhachHang"]').value.trim(),
+                    phone: row.querySelector('[data-field="sdt"]').value.trim(),
+                    address: row.querySelector('[data-field="phuongXa"]').value.trim(),
+                    city: row.querySelector('[data-field="tinhTp"]').value.trim(),
+                    car: row.querySelector('[data-field="loaiXe"]').value,
+                    color: row.querySelector('[data-field="mauXe"]').value,
+                    channel: row.querySelector('[data-field="kenh"]').value,
+                    source: row.querySelector('[data-field="nguon"]').value,
+                });
+            });
+
+            // Nếu không có khách hàng nào để thêm (trường hợp form trống)
             if (newCustomers.length === 0) {
                 showToast("Vui lòng nhập thông tin ít nhất một khách hàng.", false);
                 setButtonLoading(submitBtn, false, originalBtnHtml);
                 return;
             }
 
+            // --- BƯỚC 3: GỬI DỮ LIỆU ĐI ---
             try {
                 const res = await fetch(CRM_APPS_SCRIPT_URL, {
                     method: 'POST',
@@ -538,7 +580,7 @@
                 
                 if (result.status === 'SUCCESS') {
                     showToast(result.message, true);
-                    triggerConfetti(); // <-- KÍCH HOẠT PHÁO BÔNG
+                    triggerConfetti();
                     closeModal(document.getElementById('add-modal'));
                     document.getElementById('add-customer-rows').innerHTML = '';
                     setTimeout(() => { document.getElementById('filter-btn').click(); }, 1000);
