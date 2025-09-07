@@ -139,7 +139,8 @@
         // --- Event Listeners ---
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('username').value;
+            // Lấy giá trị tên đăng nhập và chuyển sang chữ thường
+            const username = document.getElementById('username').value.toLowerCase();
             const password = document.getElementById('password').value;
             
             try {
@@ -147,12 +148,24 @@
                 const result = await handleApiRequest(payload, loginButton);
 
                 if (result && result.success) {
-                    sessionStorage.setItem('loggedInUser', JSON.stringify({
+                    // Lưu thông tin người dùng vào sessionStorage
+                    const userInfo = {
+                        username: result.username, // Lưu lại username để kiểm tra quyền
                         fullName: result.fullName,
                         department: result.department
-                    }));
-                    // Chuyển hướng đến trang chủ khi thành công
-                    window.location.href = 'homepage.html';
+                    };
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+
+                    // === PHÂN QUYỀN VÀ CHUYỂN HƯỚNG ===
+                    // Kiểm tra nếu phòng ban là "Quản lý" HOẶC tên đăng nhập bắt đầu bằng "m-"
+                    if (userInfo.department.toLowerCase() === 'quản lý' || userInfo.username.toLowerCase().startsWith('m-')) {
+                        // Chuyển hướng đến trang quản lý
+                        window.location.href = 'quanly.html';
+                    } else {
+                        // Chuyển hướng đến trang chủ như bình thường
+                        window.location.href = 'homepage.html';
+                    }
+
                 } else if (result) {
                     showMessage(result.message || 'Đăng nhập thất bại.', false);
                 }
