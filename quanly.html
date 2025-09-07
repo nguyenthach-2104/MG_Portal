@@ -122,8 +122,9 @@
             const loggedInUser = sessionStorage.getItem('loggedInUser');
             if (loggedInUser) {
                 const user = JSON.parse(loggedInUser);
-                // SỬA LỖI: Kiểm tra "Phòng ban" thay vì "Tên đăng nhập"
-                if (user.department.toLowerCase() !== 'quản lý' && !user.department.toLowerCase().startsWith('m-')) {
+                const userDepartment = user.department.trim().toLowerCase(); // Thêm .trim() để xóa khoảng trắng
+                
+                if (userDepartment !== 'quản lý' && !userDepartment.startsWith('m-')) {
                     // Nếu không phải admin, chuyển hướng đi
                     window.location.href = 'homepage.html';
                 }

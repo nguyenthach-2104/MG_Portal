@@ -136,8 +136,6 @@
 
             const usernameInput = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            
-            // YÊU CẦU: Không phân biệt chữ hoa, chữ thường
             const username = usernameInput.toLowerCase();
 
             if (!username || !password) {
@@ -161,9 +159,10 @@
                     if (result.status === 'SUCCESS' && result.data.isValid) {
                         sessionStorage.setItem('loggedInUser', JSON.stringify(result.data.userInfo));
                         
-                        // YÊU CẦU: Phân quyền và chuyển hướng
                         const user = result.data.userInfo;
-                        if (user.department.toLowerCase() === 'quản lý' || user.username.toLowerCase().startsWith('m-')) {
+                        const userDepartment = user.department.trim().toLowerCase(); // Thêm .trim() để xóa khoảng trắng
+
+                        if (userDepartment === 'quản lý' || userDepartment.startsWith('m-')) {
                             window.location.href = 'quanly.html';
                         } else {
                             window.location.href = 'homepage.html';
@@ -194,11 +193,12 @@
             handleLogin();
         });
 
-        // Redirect if already logged in
         document.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('loggedInUser')) {
                 const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
-                 if (user.department.toLowerCase() === 'quản lý' || user.username.toLowerCase().startsWith('m-')) {
+                const userDepartment = user.department.trim().toLowerCase(); // Thêm .trim() để xóa khoảng trắng
+
+                 if (userDepartment === 'quản lý' || userDepartment.startsWith('m-')) {
                     window.location.href = 'quanly.html';
                 } else {
                     window.location.href = 'homepage.html';
