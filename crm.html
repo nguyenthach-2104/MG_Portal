@@ -74,6 +74,7 @@
             100% { top: -50px; left: -50px;  transform: rotate(90deg); }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 <body class="bg-gray-100">
 
@@ -359,6 +360,26 @@
             });
         };
 
+        const triggerConfetti = () => {
+            const duration = 2 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+                const particleCount = 50 * (timeLeft / duration);
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            }, 250);
+        };
+
         // === LOGIC AUTOCOMPLETE ĐỊA CHỈ ===
         function initAutocomplete(inputElement) {
             inputElement.addEventListener("input", function(e) {
@@ -419,8 +440,11 @@
                      </div>
                      <input type="text" placeholder="Tỉnh / TP" class="border-gray-300 rounded-lg text-sm bg-gray-100" data-field="tinhTp" readonly>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <select class="border-gray-300 rounded-lg text-sm" data-field="loaiXe"></select>
+                    <select class="border-gray-300 rounded-lg text-sm" data-field="mauXe"></select>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <select class="border-gray-300 rounded-lg text-sm" data-field="kenh"></select>
                     <select class="border-gray-300 rounded-lg text-sm" data-field="nguon"></select>
                 </div>
@@ -428,6 +452,7 @@
             container.appendChild(newRow);
 
             populateSelect(newRow.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe, null, 'Chọn Loại xe');
+            populateSelect(newRow.querySelector('[data-field="mauXe"]'), allDropdownData.mauXe, null, 'Chọn Màu xe');
             populateSelect(newRow.querySelector('[data-field="kenh"]'), allDropdownData.kenh, null, 'Chọn Kênh');
             populateSelect(newRow.querySelector('[data-field="nguon"]'), allDropdownData.nguon, null, 'Chọn Nguồn');
             initAutocomplete(newRow.querySelector('.autocomplete-input'));
@@ -449,6 +474,7 @@
                         address: row.querySelector('[data-field="phuongXa"]').value.trim(),
                         city: row.querySelector('[data-field="tinhTp"]').value.trim(),
                         car: row.querySelector('[data-field="loaiXe"]').value,
+                        color: row.querySelector('[data-field="mauXe"]').value, // <-- Lấy dữ liệu Màu Xe
                         channel: row.querySelector('[data-field="kenh"]').value,
                         source: row.querySelector('[data-field="nguon"]').value,
                     });
@@ -476,6 +502,7 @@
                 
                 if (result.status === 'SUCCESS') {
                     showToast(result.message, true);
+                    triggerConfetti(); // <-- KÍCH HOẠT PHÁO BÔNG
                     closeModal(document.getElementById('add-modal'));
                     document.getElementById('add-customer-rows').innerHTML = '';
                     setTimeout(() => { document.getElementById('filter-btn').click(); }, 1000);
