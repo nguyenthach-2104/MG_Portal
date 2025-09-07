@@ -505,6 +505,10 @@
                 
                 window.handleGetResponse = (result) => {
                     if (result.status === 'SUCCESS') {
+                        // === THÊM SẮP XẾP TẠI ĐÂY ===
+                        // Sắp xếp dữ liệu theo ngày tạo, từ mới nhất đến cũ nhất
+                        result.data.sort((a, b) => new Date(b.ngayTao) - new Date(a.ngayTao));
+
                         currentCustomers = result.data;
                         renderCustomerTable(currentCustomers);
                         // Kích hoạt lại bộ lọc tìm kiếm trên dữ liệu mới
