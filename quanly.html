@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Bình Dương - Quản lý</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #e0f2f7 0%, #c1d5e0 100%);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+            padding: 20px;
+        }
+        .pulsating-circle {
+            width: 150px;
+            height: 150px;
+            background-color: #ef4444; /* red-500 */
+            border-radius: 50%;
+            position: relative;
+            animation: pulse 2s infinite ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); /* red-500 with alpha */
+        }
+        .pulsating-circle::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #ef4444; /* red-500 */
+            border-radius: 50%;
+            animation: pulse-out 2s infinite ease-out;
+            opacity: 0;
+        }
+        .pulsating-circle svg {
+            color: white;
+            width: 80px;
+            height: 80px;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        @keyframes pulse-out {
+            0% { transform: scale(0.6); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+
+        /* === Hiệu ứng Lightswipe cho Footer === */
+        .lightswipe {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+        }
+        .lightswipe::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+            transform: skewX(-25deg);
+            animation: lightswipe-effect 4s infinite linear;
+        }
+        @keyframes lightswipe-effect {
+            100% {
+                left: 150%;
+            }
+        }
+    </style>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+    <div class="container-center">
+        <div class="pulsating-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 animate-spin">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.012c.55 0 1.02.398 1.11.94l.17.994c.041.24.187.452.387.602.269.205.58.344.912.428.536.138 1.04.536 1.346 1.011l.215.359c.27.452.263 1.002-.016 1.442l-.246.403a.75.75 0 01-.58.344c-.269.066-.554.1-.84.1-.482 0-.965-.058-1.428-.171l-.403-.096c-.255-.06-.51-.088-.768-.088-.258 0-.513.028-.768.088l-.403.096c-.463.113-.946.17-1.428.17-.286 0-.571-.034-.84-.1a.75.75 0 01-.58-.344l-.246-.403c-.279-.44-.286-.99-.016-1.442l.215-.359c.306-.475.81-.873 1.346-1.011.332-.084.643-.223.912-.428.2-.15.346-.362.387-.602l.17-.994zM12 15a3 3 0 100-6 3 3 0 000 6z" />
+            </svg>
+
+        </div>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4 animate-bounce">
+            Quản Lý
+        </h1>
+        <p class="text-xl text-gray-600 mb-8 animate-fade-in">
+            Trang này đang trong quá trình phát triển. Vui lòng quay lại sau nhé\!
+        </p>
+        <button onclick="window.location.href='homepage.html'" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105 animate-pop-in">
+            Về Trang Chủ
+        </button>
+    </div>
+
+    <footer class="text-center py-4 text-sm text-gray-600 bg-transparent mt-auto">
+        <p class="mb-1 flex justify-center items-baseline">
+            <span>Bản quyền © 2025&nbsp;</span>
+            <span class="lightswipe">Thạch Tech.</span>
+        </p>
+        <p>Hỗ trợ kỹ thuật liên hệ <a href="https://zalo.me/0888466060" target="_blank" rel="noopener noreferrer" class="font-medium text-blue-600 hover:underline">0888.46.6060</a></p>
+    </footer>
+
+    <script>
+        // Optional: Client-side check for admin status if direct access is attempted
+        document.addEventListener('DOMContentLoaded', () => {
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            if (loggedInUser) {
+                const user = JSON.parse(loggedInUser);
+                if (user.department.toLowerCase() !== 'quản lý' && !user.username.toLowerCase().startsWith('m-')) {
+                    // If not an admin, redirect them away
+                    window.location.href = 'homepage.html';
+                }
+            } else {
+                // If not logged in, redirect to login page
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
