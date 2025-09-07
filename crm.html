@@ -73,6 +73,31 @@
             75%  { top: 100%;  left: -50px;  transform: rotate(90deg); }
             100% { top: -50px; left: -50px;  transform: rotate(90deg); }
         }
+
+        /* === Hiệu ứng Lightswipe cho Footer === */
+        .lightswipe {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            -webkit-mask-image: -webkit-radial-gradient(white, black); /* Giúp hiệu ứng mượt hơn trên một số trình duyệt */
+        }
+        .lightswipe::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+            transform: skewX(-25deg);
+            animation: lightswipe-effect 4s infinite linear;
+        }
+
+        @keyframes lightswipe-effect {
+            100% {
+                left: 150%;
+            }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
@@ -308,8 +333,8 @@
 
     <div id="toast" class="fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none"></div>
     
-    <footer class="text-center py-6 mt-10 text-sm text-gray-600 border-t bg-gray-50">
-        <p class="mb-1">Bản quyền © 2025 Thạch Tech.</p>
+    <footer class="text-center py-4 mt-8 text-sm text-gray-600 border-t bg-gray-50">
+        <p class="mb-1">Bản quyền © 2025 <span class="lightswipe">Thạch Tech.</span></p>
         <p>Hỗ trợ kỹ thuật liên hệ <a href="https://zalo.me/0888466060" target="_blank" rel="noopener noreferrer" class="font-medium text-blue-600 hover:underline">0888.46.6060</a></p>
     </footer>
     
