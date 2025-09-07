@@ -636,9 +636,9 @@
             const statusMessage = document.getElementById('status-message');
             const countElement = document.getElementById('customer-count');
             
-            // Đếm số lượng khách hàng đang được hiển thị và cập nhật con số
             const count = customers ? customers.length : 0;
-            countElement.textContent = `(${count})`;
+            // Thay đổi dòng dưới đây: bỏ dấu ngoặc
+            countElement.textContent = count;
 
             tableBody.innerHTML = '';
 
