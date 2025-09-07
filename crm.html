@@ -251,8 +251,15 @@
                         <span>Thông tin Xe</span>
                         <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </summary>
-                    <div class="p-3 border-t grid grid-cols-1 gap-4 text-sm">
-                        <div><label class="block font-medium">Loại xe quan tâm</label><select data-field="loaiXe" class="w-full mt-1 border-gray-300 rounded-md"></select></div>
+                    <div class="p-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <label class="block font-medium">Loại xe quan tâm</label>
+                            <select data-field="loaiXe" class="w-full mt-1 border-gray-300 rounded-md"></select>
+                        </div>
+                        <div>
+                            <label class="block font-medium">Màu Xe</label>
+                            <select data-field="mauXe" class="w-full mt-1 border-gray-300 rounded-md"></select>
+                        </div>
                     </div>
                 </details>
 
@@ -594,6 +601,10 @@
             });
 
             populateSelect(editModal.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe, customerData.loaiXe);
+            
+            // === THÊM DÒNG NÀY VÀO ===
+            populateSelect(editModal.querySelector('[data-field="mauXe"]'), allDropdownData.mauXe, customerData.mauXe);
+
             populateSelect(editModal.querySelector('[data-field="kenh"]'), allDropdownData.kenh, customerData.kenh);
             populateSelect(editModal.querySelector('[data-field="nguon"]'), allDropdownData.nguon, customerData.nguon);
             populateSelect(editModal.querySelector('[data-field="trangThai"]'), allDropdownData.trangThai, customerData.trangThai);
