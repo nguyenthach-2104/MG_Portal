@@ -536,13 +536,31 @@
         }
 
         function handleSearch() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const filtered = searchTerm 
-                ? currentCustomers.filter(customer => 
-                    String(customer.tenKhachHang || '').toLowerCase().includes(searchTerm) ||
-                    String(customer.sdt || '').toLowerCase().includes(searchTerm)
-                  )
-                : currentCustomers;
+            const searchInput = document.getElementById('search-input').value.toLowerCase().trim();
+            
+            // Tách chuỗi tìm kiếm thành các từ khóa riêng lẻ (ví dụ: "mg4 hot" -> ["mg4", "hot"])
+            const keywords = searchInput.split(' ').filter(k => k.length > 0);
+
+            const filtered = keywords.length > 0
+                ? currentCustomers.filter(customer => {
+                    // Điều kiện để một khách hàng được hiển thị:
+                    // Phải chứa TẤT CẢ các từ khóa người dùng nhập vào
+                    return keywords.every(keyword => {
+                        // Mỗi từ khóa chỉ cần xuất hiện trong BẤT KỲ cột dữ liệu nào là được
+                        const dateString = customer.ngayTao ? new Date(customer.ngayTao).toLocaleDateString('vi-VN') : '';
+                        return (
+                            dateString.includes(keyword) ||
+                            String(customer.tenKhachHang || '').toLowerCase().includes(keyword) ||
+                            String(customer.sdt || '').toLowerCase().includes(keyword) ||
+                            String(customer.loaiXe || '').toLowerCase().includes(keyword) ||
+                            String(customer.trangThai || '').toLowerCase().includes(keyword) ||
+                            String(customer.phanLoaiKH || '').toLowerCase().includes(keyword) ||
+                            String(customer.ghiChu || '').toLowerCase().includes(keyword)
+                        );
+                    });
+                })
+                : currentCustomers; // Nếu không có từ khóa nào, hiển thị tất cả
+
             renderCustomerTable(filtered);
         }
         
