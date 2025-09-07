@@ -155,9 +155,33 @@
         }
 
         // --- Event Listeners ---
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            handleLogin();
+            // YÊU CẦU 2: Không phân biệt chữ hoa, chữ thường ở tên đăng nhập
+            const username = document.getElementById('username').value.toLowerCase();
+            const password = document.getElementById('password').value;
+            
+            try {
+                // SỬA LỖI: Đổi action từ 'login' thành 'checkUser' cho đồng bộ
+                const payload = { action: 'checkUser', username, password };
+                const result = await handleApiRequest(payload, loginButton);
+
+                if (result && result.status === 'SUCCESS' && result.data.isValid) {
+                    const userInfo = result.data.userInfo;
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(userInfo));
+
+                    // YÊU CẦU 1: Phân quyền và chuyển hướng
+                    if (userInfo.department.toLowerCase() === 'quản lý' || userInfo.username.toLowerCase().startsWith('m-')) {
+                        window.location.href = 'quanly.html';
+                    } else {
+                        window.location.href = 'homepage.html';
+                    }
+                } else if (result) {
+                    showMessage(result.message || 'Tên đăng nhập hoặc Mật khẩu không đúng.', false);
+                }
+            } catch (error) {
+                // Lỗi đã được xử lý bên trong handleApiRequest
+            }
         });
 
         // Redirect if already logged in
