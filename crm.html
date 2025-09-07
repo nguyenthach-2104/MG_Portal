@@ -468,7 +468,7 @@
                 <p class="font-semibold text-gray-700">Thông tin khách hàng mới</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" placeholder="Tên KH (*)" class="border-gray-300 rounded-lg text-sm" data-field="tenKhachHang">
-                    <input type="tel" placeholder="SĐT" class="border-gray-300 rounded-lg text-sm" data-field="sdt">
+                    <input type="tel" placeholder="SĐT (*)" class="border-gray-300 rounded-lg text-sm" data-field="sdt">
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <div class="autocomplete-container">
@@ -487,7 +487,7 @@
             `;
             container.appendChild(newRow);
 
-            populateSelect(newRow.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe, null, 'Chọn Loại xe');
+            populateSelect(newRow.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe, null, 'Chọn Loại xe (*)');
             populateSelect(newRow.querySelector('[data-field="mauXe"]'), allDropdownData.mauXe, null, 'Chọn Màu xe');
             populateSelect(newRow.querySelector('[data-field="kenh"]'), allDropdownData.kenh, null, 'Chọn Kênh');
             populateSelect(newRow.querySelector('[data-field="nguon"]'), allDropdownData.nguon, null, 'Chọn Nguồn');
