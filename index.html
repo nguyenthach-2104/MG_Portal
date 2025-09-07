@@ -72,128 +72,99 @@
         // --- DOM Elements ---
         const loginForm = document.getElementById('login-form');
         const loginButton = document.getElementById('login-button');
-        const forgotPasswordLink = document.getElementById('forgot-password-link');
         const messageBox = document.getElementById('message-box');
         const messageText = document.getElementById('message-text');
 
-        // --- Functions ---
-        function showMessage(message, isSuccess = true) {
+        // --- Utility Functions ---
+        function showToast(message, isSuccess = true) {
             messageText.textContent = message;
             messageBox.className = `fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 ${isSuccess ? 'bg-green-500' : 'bg-red-500'}`;
             messageBox.classList.remove('translate-x-[120%]');
             setTimeout(() => { messageBox.classList.add('translate-x-[120%]'); }, 4000);
         }
 
-        function setLoading(button, isLoading) {
-            button.disabled = isLoading;
+        function setButtonLoading(button, isLoading, defaultHtml) {
             if (isLoading) {
-                button.classList.add('button-loading');
+                button.disabled = true;
+                button.classList.add('button-loading', 'opacity-80');
+                button.innerHTML = 'Đang xử lý...';
             } else {
-                button.classList.remove('button-loading');
+                button.disabled = false;
+                button.classList.remove('button-loading', 'opacity-80');
+                button.innerHTML = defaultHtml;
             }
         }
 
-        async function handleApiRequest(payload, button) {
-            if (typeof APPS_SCRIPT_URL === 'undefined' || !APPS_SCRIPT_URL) {
-                showMessage('Lỗi cấu hình hệ thống. Vui lòng liên hệ Admin.', false);
-                return null;
-            }
-            if (button) setLoading(button, true);
-            
-            return new Promise((resolve, reject) => {
-                const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                const script = document.createElement('script');
+        // --- Main Logic ---
+        async function handleLogin() {
+            const originalBtnHtml = loginButton.innerHTML;
+            setButtonLoading(loginButton, true, originalBtnHtml);
 
-                const timeoutId = setTimeout(() => {
-                    showMessage('Lỗi: Yêu cầu tới server bị treo. Vui lòng thử lại.', false);
-                    cleanup();
-                    reject(new Error('Request timed out'));
-                }, 15000); // 15 giây
-
-                const cleanup = () => {
-                    clearTimeout(timeoutId);
-                    delete window[callbackName];
-                    if (document.body.contains(script)) {
-                        document.body.removeChild(script);
-                    }
-                    if (button) setLoading(button, false);
-                };
-
-                window[callbackName] = (data) => {
-                    cleanup();
-                    resolve(data);
-                };
-
-                script.onerror = () => {
-                    showMessage('Lỗi mạng hoặc URL API không hợp lệ. Vui lòng kiểm tra lại.', false);
-                    cleanup();
-                    reject(new Error('JSONP request failed'));
-                };
-
-                const params = new URLSearchParams({ ...payload, callback: callbackName });
-                script.src = `${APPS_SCRIPT_URL}?${params.toString()}`;
-                document.body.appendChild(script);
-            });
-        }
-        
-        // --- Event Listeners ---
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            // Lấy giá trị tên đăng nhập và chuyển sang chữ thường
-            const username = document.getElementById('username').value.toLowerCase();
+            const usernameInput = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            try {
-                const payload = { action: 'login', username, password };
-                const result = await handleApiRequest(payload, loginButton);
+            // YÊU CẦU 2: Không phân biệt chữ hoa, chữ thường
+            const username = usernameInput.toLowerCase();
 
-                if (result && result.success) {
-                    // Lưu thông tin người dùng vào sessionStorage
-                    const userInfo = {
-                        username: result.username, // Lưu lại username để kiểm tra quyền
-                        fullName: result.fullName,
-                        department: result.department
-                    };
-                    sessionStorage.setItem('loggedInUser', JSON.stringify(userInfo));
-
-                    // === PHÂN QUYỀN VÀ CHUYỂN HƯỚNG ===
-                    // Kiểm tra nếu phòng ban là "Quản lý" HOẶC tên đăng nhập bắt đầu bằng "m-"
-                    if (userInfo.department.toLowerCase() === 'quản lý' || userInfo.username.toLowerCase().startsWith('m-')) {
-                        // Chuyển hướng đến trang quản lý
-                        window.location.href = 'quanly.html';
-                    } else {
-                        // Chuyển hướng đến trang chủ như bình thường
-                        window.location.href = 'homepage.html';
-                    }
-
-                } else if (result) {
-                    showMessage(result.message || 'Đăng nhập thất bại.', false);
-                }
-            } catch (error) {
-                // Lỗi đã được xử lý bên trong handleApiRequest, không cần log thêm
-            }
-        });
-
-        forgotPasswordLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            if (!username) {
-                showMessage('Vui lòng nhập Tên đăng nhập để lấy lại mật khẩu.', false);
+            if (!username || !password) {
+                showToast("Vui lòng nhập đủ Tên đăng nhập và Mật khẩu.", false);
+                setButtonLoading(loginButton, false, originalBtnHtml);
                 return;
             }
-            showMessage('Đang gửi yêu cầu, vui lòng chờ...');
-            
-            try {
-                const payload = { action: 'forgotPassword', username };
-                const result = await handleApiRequest(payload, null);
 
-                if (result && result.success) {
-                    showMessage(result.message, true);
-                } else if (result) {
-                    showMessage(result.message || 'Yêu cầu thất bại.', false);
-                }
+            try {
+                const params = new URLSearchParams({
+                    action: 'checkUser', // Action đúng phải là 'checkUser'
+                    username: username,
+                    password: password,
+                    callback: 'handleLoginResponse' // Dùng callback function
+                });
+
+                const script = document.createElement('script');
+                script.src = `${APPS_SCRIPT_URL}?${params.toString()}`;
+
+                window.handleLoginResponse = (result) => {
+                    if (result.status === 'SUCCESS' && result.data.isValid) {
+                        sessionStorage.setItem('loggedInUser', JSON.stringify(result.data.userInfo));
+                        
+                        // YÊU CẦU 1: Phân quyền và chuyển hướng
+                        const user = result.data.userInfo;
+                        if (user.department.toLowerCase() === 'quản lý' || user.username.toLowerCase().startsWith('m-')) {
+                            window.location.href = 'quanly.html';
+                        } else {
+                            window.location.href = 'homepage.html';
+                        }
+                    } else {
+                        showToast("Tên đăng nhập hoặc Mật khẩu không đúng.", false);
+                        setButtonLoading(loginButton, false, originalBtnHtml);
+                    }
+                    document.body.removeChild(script);
+                    delete window.handleLoginResponse;
+                };
+
+                script.onerror = () => { 
+                    showToast("Lỗi kết nối đến máy chủ. Vui lòng thử lại.", false);
+                    setButtonLoading(loginButton, false, originalBtnHtml);
+                };
+                document.body.appendChild(script);
+
             } catch (error) {
-                // Lỗi đã được xử lý bên trong handleApiRequest
+                showToast(`Đã xảy ra lỗi: ${error.message}`, false);
+                setButtonLoading(loginButton, false, originalBtnHtml);
+            }
+        }
+
+        // --- Event Listeners ---
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleLogin();
+        });
+
+        // Redirect if already logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('loggedInUser')) {
+                // Bạn có thể thêm logic phân quyền ở đây nếu muốn
+                window.location.href = 'homepage.html'; 
             }
         });
     </script>
