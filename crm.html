@@ -676,32 +676,6 @@
                 });
             });
         }
-
-            statusMessage.style.display = 'none';
-            customers.forEach(customer => {
-                const row = document.createElement('tr');
-                row.className = 'bg-white border-b clickable-row';
-                row.dataset.rowIndex = customer.rowIndex;
-
-                row.innerHTML = `
-                    <td class="px-6 py-4">${customer.ngayTao ? new Date(customer.ngayTao).toLocaleDateString('vi-VN') : ''}</td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${customer.tenKhachHang || ''}</td>
-                    <td class="px-6 py-4">${customer.loaiXe || ''}</td>
-                    <td class="px-6 py-4">${customer.trangThai || ''}</td>
-                    <td class="px-6 py-4">${customer.phanLoaiKH || ''}</td>
-                    <td class="px-6 py-4">${customer.ghiChu || ''}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-            
-            tableBody.querySelectorAll('.clickable-row').forEach(row => {
-                row.addEventListener('click', () => {
-                    const rowIndex = parseInt(row.dataset.rowIndex);
-                    const customerData = currentCustomers.find(c => c.rowIndex === rowIndex);
-                    if (customerData) openEditModal(customerData);
-                });
-            });
-        }
         
         // === LOGIC CHỈNH SỬA & CẬP NHẬT KHÁCH HÀNG (MODAL) ===
         function openEditModal(customerData) {
