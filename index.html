@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- IMPORTANT: Bạn cần tạo file config.js và đặt URL của Apps Script vào đó -->
+    <!-- Ví dụ nội dung file config.js: -->
+    <!-- const APPS_SCRIPT_URL = "URL_WEB_APP_CỦA_BẠN"; -->
     <script src="config.js"></script>
     
     <style>
@@ -18,20 +21,18 @@
         }
         .button-loading::after { 
             content: ''; 
-            display: inline-block; 
-            width: 16px; 
-            height: 16px; 
-            border: 2px solid transparent; 
-            border-top-color: white; 
-            border-radius: 50%; 
-            animation: spin 1s linear infinite; 
-            margin-left: 10px; 
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
         }
         @keyframes spin { 
             to { transform: rotate(360deg); } 
         }
-
-        /* === Hiệu ứng Lightswipe cho Footer === */
         .lightswipe {
             position: relative;
             display: inline-block;
@@ -86,6 +87,13 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- === KHU VỰC LOG LỖI MỚI === -->
+                <div id="log-container" class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative hidden">
+                    <strong class="font-bold">Nhật ký lỗi:</strong>
+                    <span class="block sm:inline" id="log-message"></span>
+                </div>
+
             </div>
         </div>
     </main>
@@ -108,7 +116,9 @@
     const loginButton = document.getElementById('login-button');
     const messageBox = document.getElementById('message-box');
     const messageText = document.getElementById('message-text');
-    const forgotPasswordLink = document.getElementById('forgot-password-link'); // MỚI: Lấy phần tử link quên mật khẩu
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    const logContainer = document.getElementById('log-container'); // Mới: Lấy phần tử log
+    const logMessage = document.getElementById('log-message');   // Mới: Lấy phần tử chứa tin nhắn log
 
     // --- Utility Functions ---
     function showToast(message, isSuccess = true) {
@@ -116,6 +126,12 @@
         messageBox.className = `fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 ${isSuccess ? 'bg-green-500' : 'bg-red-500'}`;
         messageBox.classList.remove('translate-x-[120%]');
         setTimeout(() => { messageBox.classList.add('translate-x-[120%]'); }, 4000);
+    }
+    
+    // Mới: Hàm hiển thị log lỗi chi tiết trên trang
+    function displayLogError(message) {
+        logMessage.textContent = message;
+        logContainer.classList.remove('hidden');
     }
 
     function setButtonLoading(button, isLoading, defaultHtml) {
@@ -134,13 +150,15 @@
     function handleLogin() {
         const originalBtnHtml = loginButton.innerHTML;
         setButtonLoading(loginButton, true, originalBtnHtml);
+        logContainer.classList.add('hidden'); // Ẩn log cũ khi bắt đầu đăng nhập
 
-        const usernameInput = document.getElementById('username').value;
+        const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        const username = usernameInput.toLowerCase();
-
+        
         if (!username || !password) {
-            showToast("Vui lòng nhập đủ Tên đăng nhập và Mật khẩu.", false);
+            const msg = "Vui lòng nhập đủ Tên đăng nhập và Mật khẩu.";
+            showToast(msg, false);
+            displayLogError(msg); // Hiển thị cả trong log
             setButtonLoading(loginButton, false, originalBtnHtml);
             return;
         }
@@ -148,20 +166,27 @@
         try {
             const params = new URLSearchParams({
                 action: 'checkUser',
-                username: username,
+                username: username, // Gửi username nguyên bản, server sẽ xử lý toLowerCase
                 password: password,
                 callback: 'handleLoginResponse'
             });
 
             const script = document.createElement('script');
+            // Đảm bảo biến APPS_SCRIPT_URL đã được định nghĩa trong config.js
             script.src = `${APPS_SCRIPT_URL}?${params.toString()}`;
 
             window.handleLoginResponse = (result) => {
+                setButtonLoading(loginButton, false, originalBtnHtml);
+                
+                // Cải tiến: Lấy thông báo lỗi chi tiết từ server
+                const serverMessage = result.data ? result.data.message : (result.message || "Lỗi không xác định.");
+
                 if (result.status === 'SUCCESS' && result.data.isValid) {
+                    showToast("Đăng nhập thành công!", true);
                     sessionStorage.setItem('loggedInUser', JSON.stringify(result.data.userInfo));
                     
                     const user = result.data.userInfo;
-                    const userDepartment = user.department.trim().toLowerCase(); 
+                    const userDepartment = (user.department || '').trim().toLowerCase(); 
 
                     if (userDepartment === 'quản lý' || userDepartment.startsWith('m-')) {
                         window.location.href = 'quanly.html';
@@ -169,35 +194,40 @@
                         window.location.href = 'homepage.html';
                     }
                 } else {
-                    showToast("Tên đăng nhập hoặc Mật khẩu không đúng.", false);
-                    setButtonLoading(loginButton, false, originalBtnHtml);
+                    // Hiển thị thông báo lỗi chi tiết từ server
+                    showToast(serverMessage, false);
+                    displayLogError(`Server trả về: ${serverMessage}`);
                 }
                 document.body.removeChild(script);
                 delete window.handleLoginResponse;
             };
 
             script.onerror = () => { 
-                showToast("Lỗi kết nối đến máy chủ. Vui lòng thử lại.", false);
+                const msg = "Lỗi kết nối đến máy chủ. Kiểm tra lại URL trong config.js hoặc tình trạng mạng.";
+                showToast(msg, false);
+                displayLogError(msg);
                 setButtonLoading(loginButton, false, originalBtnHtml);
+                if (window.handleLoginResponse) delete window.handleLoginResponse;
             };
             document.body.appendChild(script);
 
         } catch (error) {
-            showToast(`Đã xảy ra lỗi: ${error.message}`, false);
+            const msg = `Lỗi phía client: ${error.message}`;
+            showToast(msg, false);
+            displayLogError(msg);
             setButtonLoading(loginButton, false, originalBtnHtml);
         }
     }
 
-    // --- MỚI: Logic xử lý quên mật khẩu ---
+    // --- Logic xử lý quên mật khẩu (Giữ nguyên) ---
     function handleForgotPassword() {
         const usernameInput = prompt("Vui lòng nhập Tên đăng nhập (username) của bạn để khôi phục mật khẩu:");
 
         if (!usernameInput || usernameInput.trim() === '') {
-            // Người dùng không nhập gì hoặc bấm cancel
             return;
         }
         
-        const username = usernameInput.trim().toLowerCase();
+        const username = usernameInput.trim();
         showToast("Đang gửi yêu cầu, vui lòng chờ...", true);
 
         try {
@@ -211,23 +241,26 @@
             script.src = `${APPS_SCRIPT_URL}?${params.toString()}`;
 
             window.handleForgotResponse = (result) => {
-                if (result.status === 'SUCCESS' && result.data.success) {
-                    showToast(result.data.message, true);
-                } else {
-                    const errorMessage = result.data ? result.data.message : "Có lỗi xảy ra.";
-                    showToast(errorMessage, false);
-                }
+                const serverMessage = result.data ? result.data.message : "Có lỗi xảy ra.";
+                const isSuccess = result.status === 'SUCCESS' && result.data.success;
+                showToast(serverMessage, isSuccess);
+                if(!isSuccess) displayLogError(`Quên mật khẩu: ${serverMessage}`);
+
                 document.body.removeChild(script);
                 delete window.handleForgotResponse;
             };
 
             script.onerror = () => { 
-                showToast("Lỗi kết nối đến máy chủ. Vui lòng thử lại.", false);
+                const msg = "Lỗi kết nối đến máy chủ khi yêu cầu quên mật khẩu.";
+                showToast(msg, false);
+                displayLogError(msg);
             };
             document.body.appendChild(script);
 
         } catch (error) {
-            showToast(`Đã xảy ra lỗi: ${error.message}`, false);
+            const msg = `Đã xảy ra lỗi: ${error.message}`;
+            showToast(msg, false);
+            displayLogError(msg);
         }
     }
 
@@ -238,9 +271,8 @@
         handleLogin();
     });
 
-    // MỚI: Thêm sự kiện click cho link quên mật khẩu
     forgotPasswordLink.addEventListener('click', (e) => {
-        e.preventDefault(); // Ngăn hành vi mặc định của thẻ <a>
+        e.preventDefault(); 
         handleForgotPassword();
     });
 
@@ -248,7 +280,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         if (sessionStorage.getItem('loggedInUser')) {
             const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
-            const userDepartment = user.department.trim().toLowerCase();
+            const userDepartment = (user.department || '').trim().toLowerCase();
 
              if (userDepartment === 'quản lý' || userDepartment.startsWith('m-')) {
                 window.location.href = 'quanly.html';
