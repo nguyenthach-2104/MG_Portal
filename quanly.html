@@ -3,135 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MG Bình Dương - Quản lý</title>
+    <title>Trang Quản lý - MG Bình Dương</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <script src="config.js"></script>
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #e0f2f7 0%, #c1d5e0 100%);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        .container-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            text-align: center;
-            padding: 20px;
-        }
-        .pulsating-circle {
-            width: 150px;
-            height: 150px;
-            background-color: #ef4444; /* red-500 */
-            border-radius: 50%;
-            position: relative;
-            animation: pulse 2s infinite ease-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); /* red-500 with alpha */
-        }
-        .pulsating-circle::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: #ef4444; /* red-500 */
-            border-radius: 50%;
-            animation: pulse-out 2s infinite ease-out;
-            opacity: 0;
-        }
-        .pulsating-circle svg {
-            color: white;
-            width: 80px;
-            height: 80px;
-        }
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        @keyframes pulse-out {
-            0% { transform: scale(0.6); opacity: 1; }
-            100% { transform: scale(1.2); opacity: 0; }
-        }
-
-        /* === Hiệu ứng Lightswipe cho Footer === */
-        .lightswipe {
-            position: relative;
-            display: inline-block;
-            overflow: hidden;
-            -webkit-mask-image: -webkit-radial-gradient(white, black);
-        }
-        .lightswipe::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -150%;
-            width: 70%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
-            transform: skewX(-25deg);
-            animation: lightswipe-effect 4s infinite linear;
-        }
-        @keyframes lightswipe-effect {
-            100% {
-                left: 150%;
-            }
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .table-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        .button-loading { cursor: not-allowed; opacity: 0.8; }
+        .tab-button.active { border-color: #DC2626; color: #DC2626; background-color: #FEF2F2; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .sortable-header { cursor: pointer; user-select: none; }
+        .sortable-header:hover { color: #DC2626; }
+        .sort-asc::after { content: ' ▲'; font-size: 0.8em; }
+        .sort-desc::after { content: ' ▼'; font-size: 0.8em; }
     </style>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
-<body>
-    <div class="container-center">
-        <div class="pulsating-circle">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 animate-spin">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.012c.55 0 1.02.398 1.11.94l.17.994c.041.24.187.452.387.602.269.205.58.344.912.428.536.138 1.04.536 1.346 1.011l.215.359c.27.452.263 1.002-.016 1.442l-.246.403a.75.75 0 01-.58.344c-.269.066-.554.1-.84.1-.482 0-.965-.058-1.428-.171l-.403-.096c-.255-.06-.51-.088-.768-.088-.258 0-.513.028-.768.088l-.403.096c-.463.113-.946.17-1.428.17-.286 0-.571-.034-.84-.1a.75.75 0 01-.58-.344l-.246-.403c-.279-.44-.286-.99-.016-1.442l.215-.359c.306-.475.81-.873 1.346-1.011.332-.084.643-.223.912-.428.2-.15.346-.362.387-.602l.17-.994zM12 15a3 3 0 100-6 3 3 0 000 6z" />
-            </svg>
+<body class="bg-gray-100">
 
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm p-4 sticky top-0 z-40">
+        <div class="container mx-auto flex justify-between items-center">
+             <a href="homepage.html" class="text-2xl font-bold text-red-600">MG<span class="text-gray-700">Portal</span></a>
+            <div class="hidden md:flex items-center space-x-4">
+                 <p id="user-name-nav" class="font-semibold text-gray-800"></p>
+                 <p id="user-department-nav" class="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full"></p>
+                 <button id="logout-button-desktop" title="Đăng xuất" class="text-gray-500 hover:text-red-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                 </button>
+            </div>
         </div>
-        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4 animate-bounce">
-            Quản Lý
+    </nav>
+    
+    <main class="container mx-auto p-4 md:p-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
+            Báo cáo Dành cho Quản lý
         </h1>
-        <p class="text-xl text-gray-600 mb-8 animate-fade-in">
-            Trang này đang trong quá trình phát triển. Vui lòng quay lại sau nhé\!
-        </p>
-        <button onclick="window.location.href='homepage.html'" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105 animate-pop-in">
-            Về Trang Chủ
-        </button>
-    </div>
 
-    <footer class="text-center py-4 text-sm text-gray-600 bg-transparent mt-auto">
-        <p class="mb-1 flex justify-center items-baseline">
-            <span>Bản quyền © 2025&nbsp;</span>
-            <span class="lightswipe">Thạch Tech.</span>
-        </p>
-        <p>Hỗ trợ kỹ thuật liên hệ <a href="https://zalo.me/0888466060" target="_blank" rel="noopener noreferrer" class="font-medium text-blue-600 hover:underline">0888.46.6060</a></p>
-    </footer>
+        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
+                    <input type="date" id="start-date" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
+                    <input type="date" id="end-date" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div class="sm:col-span-2 lg:col-span-2">
+                    <button id="filter-btn" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center gap-2">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h18M7 8v8m10-8v8M4 12h16m-7 4h-2"></path></svg>
+                        <span>Xem báo cáo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4 border-b border-gray-200">
+            <nav id="tab-buttons" class="flex space-x-4" aria-label="Tabs">
+                <button class="tab-button active font-medium text-gray-600 py-2 px-3 border-b-2 border-transparent hover:border-gray-300" data-tab="khtn">
+                    Khách Hàng Tiềm Năng
+                </button>
+                <button class="tab-button font-medium text-gray-600 py-2 px-3 border-b-2 border-transparent hover:border-gray-300" data-tab="stats">
+                    Thống Kê & Báo Cáo
+                </button>
+            </nav>
+        </div>
+
+        <div>
+            <div id="tab-khtn" class="tab-content active">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-bold text-lg">Danh sách chi tiết <span id="customer-count" class="text-red-600"></span></h2>
+                        <button id="copy-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            <span>Copy Bảng</span>
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto table-container">
+                        <table id="customer-table" class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-3">Ngày tạo</th>
+                                    <th class="px-6 py-3">Tên KH</th>
+                                    <th class="px-6 py-3">Nhân viên</th>
+                                    <th class="px-6 py-3">Phòng ban</th>
+                                    <th class="px-6 py-3">Loại xe</th>
+                                    <th class="px-6 py-3">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customer-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="status-message" class="text-center p-6 text-gray-500">Vui lòng chọn khoảng thời gian và nhấn "Xem báo cáo".</div>
+                </div>
+            </div>
+
+            <div id="tab-stats" class="tab-content">
+                <div class="space-y-6">
+                    <div id="chart-container" class="bg-white rounded-lg shadow-md p-4 hidden">
+                        <h2 class="font-bold text-lg mb-4">So sánh hiệu suất các Phòng ban</h2>
+                        <canvas id="department-chart"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                         <h2 class="font-bold text-lg mb-4">Thống kê hiệu suất Nhân viên</h2>
+                         <div class="overflow-x-auto table-container">
+                            <table class="w-full text-sm text-left text-gray-500">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
+                                    <tr>
+                                        <th data-sort="employeeName" class="px-6 py-3 sortable-header">Nhân viên</th>
+                                        <th data-sort="department" class="px-6 py-3 sortable-header">Phòng Ban</th>
+                                        <th data-sort="customerCount" class="px-6 py-3 sortable-header">Số KHTN</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stats-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loggedInUser = sessionStorage.getItem('loggedInUser');
-            if (loggedInUser) {
-                const user = JSON.parse(loggedInUser);
-                const userDepartment = user.department.trim().toLowerCase(); // Thêm .trim() để xóa khoảng trắng
-                
-                if (userDepartment !== 'quản lý' && !userDepartment.startsWith('m-')) {
-                    // Nếu không phải admin, chuyển hướng đi
-                    window.location.href = 'homepage.html';
-                }
+        // === BIẾN TOÀN CỤC ===
+        let allManagerData = [];
+        let departmentChartInstance = null;
+        let currentSort = { column: 'customerCount', order: 'desc' };
+
+        // === CÁC HÀM TIỆN ÍCH ===
+        const showToast = (message, isSuccess = true) => {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300 pointer-events-none ${isSuccess ? 'bg-green-600' : 'bg-red-600'}`;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => { toast.classList.add('opacity-0'); }, 3000);
+        };
+        const setButtonLoading = (button, isLoading, defaultHtml) => {
+            if (isLoading) {
+                button.disabled = true;
+                button.classList.add('button-loading');
+                button.innerHTML = `<svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="4" class="opacity-25"></circle><path d="M4 12a8 8 0 018-8" stroke-width="4" class="opacity-75"></path></svg><span>Đang xử lý...</span>`;
             } else {
-                // Nếu chưa đăng nhập, chuyển về trang login
-                window.location.href = 'index.html';
+                button.disabled = false;
+                button.classList.remove('button-loading');
+                button.innerHTML = defaultHtml;
             }
+        };
+
+        // === LOGIC LỌC & HIỂN THỊ DỮ LIỆU ===
+        async function fetchManagerData() {
+            const filterBtn = document.getElementById('filter-btn');
+            const originalBtnHtml = filterBtn.innerHTML;
+            setButtonLoading(filterBtn, true, originalBtnHtml);
+
+            document.getElementById('status-message').textContent = 'Đang tải dữ liệu...';
+            document.getElementById('customer-table-body').innerHTML = '';
+            document.getElementById('stats-table-body').innerHTML = '';
+
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            
+            try {
+                const params = new URLSearchParams({
+                    action: 'getManagerData', // Action mới
+                    startDate: startDate, endDate: endDate,
+                    user: JSON.stringify(user), // Gửi thông tin user lên server
+                    callback: 'handleManagerResponse'
+                });
+                
+                const script = document.createElement('script');
+                script.src = `${CRM_APPS_SCRIPT_URL}?${params.toString()}`;
+                
+                window.handleManagerResponse = (result) => {
+                    if (result.status === 'SUCCESS') {
+                        // Sắp xếp dữ liệu theo ngày tạo, từ mới nhất đến cũ nhất
+                        result.data.sort((a, b) => new Date(b.ngayTao) - new Date(a.ngayTao));
+                        allManagerData = result.data;
+                        renderAllTabs(allManagerData);
+                    } else { throw new Error(result.message); }
+                    
+                    document.body.removeChild(script);
+                    delete window.handleManagerResponse;
+                };
+                script.onerror = () => { throw new Error("Lỗi tải script từ máy chủ."); }
+                document.body.appendChild(script);
+
+            } catch(error) {
+                document.getElementById('status-message').textContent = `Lỗi: ${error.message}`;
+            } finally {
+                 setButtonLoading(filterBtn, false, originalBtnHtml);
+            }
+        }
+        
+        function renderAllTabs(data) {
+            renderCustomerTable(data);
+            processAndRenderStatistics(data);
+        }
+
+        function renderCustomerTable(customers) {
+            const tableBody = document.getElementById('customer-table-body');
+            const statusMessage = document.getElementById('status-message');
+            const countElement = document.getElementById('customer-count');
+            
+            countElement.textContent = `(${customers.length})`;
+            tableBody.innerHTML = '';
+
+            if (!customers || customers.length === 0) {
+                statusMessage.style.display = 'block';
+                statusMessage.textContent = 'Không có dữ liệu trong khoảng thời gian đã chọn.';
+                return;
+            }
+
+            statusMessage.style.display = 'none';
+            customers.forEach(customer => {
+                const row = document.createElement('tr');
+                row.className = 'bg-white border-b';
+                row.innerHTML = `
+                    <td class="px-6 py-4">${new Date(customer.ngayTao).toLocaleDateString('vi-VN')}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${customer.tenKhachHang || ''}</td>
+                    <td class="px-6 py-4">${customer.tenNhanVien || ''}</td>
+                    <td class="px-6 py-4">${customer.pkd || ''}</td>
+                    <td class="px-6 py-4">${customer.loaiXe || ''}</td>
+                    <td class="px-6 py-4">${customer.trangThai || ''}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // === LOGIC TAB THỐNG KÊ ===
+        function processAndRenderStatistics(data) {
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            
+            // 1. Thống kê theo phòng ban (chỉ cho 'quản lý')
+            if (user.department.trim().toLowerCase() === 'quản lý') {
+                const departmentStats = data.reduce((acc, curr) => {
+                    const dept = curr.pkd || 'Chưa xác định';
+                    acc[dept] = (acc[dept] || 0) + 1;
+                    return acc;
+                }, {});
+                document.getElementById('chart-container').style.display = 'block';
+                renderDepartmentChart(departmentStats);
+            } else {
+                 document.getElementById('chart-container').style.display = 'none';
+            }
+
+            // 2. Thống kê theo nhân viên
+            const employeeStats = data.reduce((acc, curr) => {
+                const empName = curr.tenNhanVien || 'Chưa xác định';
+                if (!acc[empName]) {
+                    acc[empName] = { 
+                        employeeName: empName,
+                        department: curr.pkd || 'N/A', 
+                        customerCount: 0 
+                    };
+                }
+                acc[empName].customerCount++;
+                return acc;
+            }, {});
+            
+            renderStatsTable(Object.values(employeeStats));
+        }
+
+        function renderDepartmentChart(stats) {
+            const ctx = document.getElementById('department-chart').getContext('2d');
+            const labels = Object.keys(stats);
+            const data = Object.values(stats);
+
+            if (departmentChartInstance) {
+                departmentChartInstance.destroy();
+            }
+
+            departmentChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số KHTN',
+                        data: data,
+                        backgroundColor: 'rgba(220, 38, 38, 0.6)',
+                        borderColor: 'rgba(220, 38, 38, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: { y: { beginAtZero: true } },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        function renderStatsTable(statsData) {
+            // Sắp xếp dữ liệu trước khi render
+            statsData.sort((a, b) => {
+                const valA = a[currentSort.column];
+                const valB = b[currentSort.column];
+                
+                let comparison = 0;
+                if (typeof valA === 'number' && typeof valB === 'number') {
+                    comparison = valA - valB;
+                } else {
+                    comparison = String(valA).localeCompare(String(valB));
+                }
+                
+                return currentSort.order === 'asc' ? comparison : -comparison;
+            });
+
+            // Render bảng
+            const tableBody = document.getElementById('stats-table-body');
+            tableBody.innerHTML = '';
+            statsData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'bg-white border-b';
+                row.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-gray-900">${item.employeeName}</td>
+                    <td class="px-6 py-4">${item.department}</td>
+                    <td class="px-6 py-4 font-bold">${item.customerCount}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Cập nhật giao diện header
+            document.querySelectorAll('.sortable-header').forEach(header => {
+                header.classList.remove('sort-asc', 'sort-desc');
+                if (header.dataset.sort === currentSort.column) {
+                    header.classList.add(currentSort.order === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            });
+        }
+        
+        // === KHỞI TẠO & GÁN SỰ KIỆN ===
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Logic xác thực & User Info ---
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) { window.location.href = 'index.html'; return; }
+            
+            const userDept = user.department.trim().toLowerCase();
+            if (userDept !== 'quản lý' && !userDept.startsWith('m-')) {
+                window.location.href = 'homepage.html';
+                return;
+            }
+
+            document.getElementById('user-name-nav').textContent = user.fullName;
+            document.getElementById('user-department-nav').textContent = user.department;
+            document.getElementById('logout-button-desktop').addEventListener('click', () => {
+                sessionStorage.removeItem('loggedInUser');
+                window.location.href = 'index.html';
+            });
+            
+            // --- Gán sự kiện cho các nút ---
+            document.getElementById('filter-btn').addEventListener('click', fetchManagerData);
+            
+            // --- Logic chuyển Tab ---
+            document.getElementById('tab-buttons').addEventListener('click', (e) => {
+                if (e.target.matches('.tab-button')) {
+                    const tabId = e.target.dataset.tab;
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    e.target.classList.add('active');
+                    document.getElementById(`tab-${tabId}`).classList.add('active');
+                }
+            });
+            
+            // --- Logic Copy bảng ---
+            document.getElementById('copy-btn').addEventListener('click', () => {
+                const table = document.getElementById('customer-table');
+                let dataString = '';
+                // Lấy header
+                const headers = [...table.querySelectorAll('thead th')].map(th => th.innerText).join('\t');
+                dataString += headers + '\n';
+                // Lấy body
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const rowData = [...row.querySelectorAll('td')].map(td => td.innerText).join('\t');
+                    dataString += rowData + '\n';
+                });
+                
+                navigator.clipboard.writeText(dataString).then(() => {
+                    showToast('Đã copy dữ liệu vào clipboard!', true);
+                }, () => {
+                    showToast('Copy thất bại!', false);
+                });
+            });
+
+            // --- Logic Sắp xếp bảng Thống kê ---
+            document.querySelectorAll('.sortable-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.dataset.sort;
+                    if (currentSort.column === column) {
+                        currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.column = column;
+                        currentSort.order = 'desc'; // Mặc định sắp xếp giảm dần khi chọn cột mới
+                    }
+                    // Dùng dữ liệu đã có để sắp xếp lại, không cần fetch lại
+                    processAndRenderStatistics(allManagerData); 
+                });
+            });
+
+            // --- Thiết lập mặc định & tải lần đầu ---
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById('start-date').value = firstDayOfMonth.toISOString().split('T')[0];
+            document.getElementById('end-date').value = today.toISOString().split('T')[0];
+            
+            fetchManagerData();
         });
     </script>
 </body>
