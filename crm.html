@@ -52,24 +52,16 @@
             
             background-image: none; 
 
-            /* Thêm dòng này để xoay hình ảnh icon mượt mà hơn */
             animation: drive-around 15s linear infinite;
         }
 
        @keyframes drive-around {
-            /* Giai đoạn 1: Đi sang phải (Lật ngang) */
             0%   { top: -50px; left: -50px;  transform: scaleX(-1); }
             24%  { top: -50px; left: 100%;   transform: scaleX(-1); }
-
-            /* Giai đoạn 2: Đi xuống (Lật ngang và xoay 90 độ) */
             25%  { top: -50px; left: 100%;   transform: rotate(90deg) scaleX(-1); }
             49%  { top: 100%;  left: 100%;   transform: rotate(90deg) scaleX(-1); }
-
-            /* Giai đoạn 3: Đi sang trái (Giữ nguyên - xe đi lùi) */
             50%  { top: 100%;  left: 100%;   transform: scaleX(1); }
             74%  { top: 100%;  left: -50px;  transform: scaleX(1); }
-
-            /* Giai đoạn 4: Đi lên trên (Xoay 90 độ - xe đi lùi) */
             75%  { top: 100%;  left: -50px;  transform: rotate(90deg); }
             100% { top: -50px; left: -50px;  transform: rotate(90deg); }
         }
@@ -79,7 +71,7 @@
             position: relative;
             display: inline-block;
             overflow: hidden;
-            -webkit-mask-image: -webkit-radial-gradient(white, black); /* Giúp hiệu ứng mượt hơn trên một số trình duyệt */
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
         }
         .lightswipe::after {
             content: '';
@@ -112,6 +104,7 @@
                 <a href="ghepxe.html" class="text-gray-700 hover:text-red-600 transition-colors">Ghép xe</a>
                 <a href="vanban.html" class="text-gray-700 hover:text-red-600 transition-colors">Văn bản</a>
                 <a href="hoatdong.html" class="text-gray-700 hover:text-red-600 transition-colors">Hoạt động</a>
+                <a href="quanly.html" id="quanly-nav-link-desktop" class="text-gray-700 hover:text-red-600 transition-colors" style="display: none;">Quản lý</a>
                 <div class="h-6 w-px bg-gray-200"></div>
                 <div class="flex items-center space-x-4">
                     <div class="text-right">
@@ -119,7 +112,7 @@
                         <p id="user-department-nav" class="text-xs text-gray-500 leading-tight">Phòng Ban</p>
                     </div>
                     <button id="logout-button-desktop" title="Đăng xuất" class="text-gray-500 hover:text-red-600 transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 S.o 013-3h4a3 3 0 013 3v1"></path></svg>
                     </button>
                 </div>
             </div>
@@ -132,7 +125,7 @@
             </div>
         </div>
     </nav>
-
+    
     <div id="mobile-menu-container" class="fixed inset-0 z-50 pointer-events-none">
         <div id="menu-overlay" class="absolute inset-0 bg-black bg-opacity-50 opacity-0 transition-opacity"></div>
         <div id="mobile-menu" class="absolute top-0 right-0 h-full w-full max-w-xs bg-white shadow-xl transform translate-x-full transition-transform">
@@ -147,6 +140,7 @@
                     <a href="ghepxe.html" class="text-gray-700 hover:text-red-600">Ghép xe</a>
                     <a href="vanban.html" class="text-gray-700 hover:text-red-600">Văn bản</a>
                     <a href="hoatdong.html" class="text-gray-700 hover:text-red-600">Hoạt động</a>
+                    <a href="quanly.html" id="quanly-nav-link-mobile" class="text-gray-700 hover:text-red-600" style="display: none;">Quản lý</a>
                 </nav>
                 <div class="mt-auto">
                     <button id="logout-button-mobile" class="w-full flex items-center space-x-3 text-gray-600 hover:text-red-600 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-100">
@@ -458,7 +452,7 @@
         }
 
 
-        // === LOGIC THÊM KHÁCH HÀNG MỚI (MODAL) ===
+        // === [CẬP NHẬT] LOGIC THÊM KHÁCH HÀNG MỚI (MODAL) ===
         function addNewCustomerRow() {
             const container = document.getElementById('add-customer-rows');
             const newRow = document.createElement('div');
@@ -484,6 +478,9 @@
                     <select class="border-gray-300 rounded-lg text-sm" data-field="kenh"></select>
                     <select class="border-gray-300 rounded-lg text-sm" data-field="nguon"></select>
                 </div>
+                <div>
+                    <textarea placeholder="Ghi chú ban đầu (*)" class="w-full border-gray-300 rounded-lg text-sm" data-field="ghiChu" rows="3"></textarea>
+                </div>
             `;
             container.appendChild(newRow);
 
@@ -503,47 +500,31 @@
             const newCustomers = [];
             let allRowsValid = true;
 
-            // --- BƯỚC 1: KIỂM TRA DỮ LIỆU (VALIDATION) ---
-            // Đầu tiên, xóa các cảnh báo viền đỏ cũ (nếu có)
+            const requiredFields = ['tenKhachHang', 'sdt', 'loaiXe', 'ghiChu'];
+
             customerRows.forEach(row => {
-                row.querySelectorAll('[data-field="tenKhachHang"], [data-field="sdt"], [data-field="loaiXe"]').forEach(input => {
+                row.querySelectorAll('input, select, textarea').forEach(input => {
                     input.classList.remove('border-red-500', 'border-2');
                 });
-            });
 
-            // Lặp qua từng hàng để kiểm tra
-            for (const row of customerRows) {
-                const nameInput = row.querySelector('[data-field="tenKhachHang"]');
-                const phoneInput = row.querySelector('[data-field="sdt"]');
-                const carInput = row.querySelector('[data-field="loaiXe"]');
                 let rowIsValid = true;
-
-                if (!nameInput.value.trim()) {
-                    nameInput.classList.add('border-red-500', 'border-2');
-                    rowIsValid = false;
-                }
-                if (!phoneInput.value.trim()) {
-                    phoneInput.classList.add('border-red-500', 'border-2');
-                    rowIsValid = false;
-                }
-                if (!carInput.value) { // Đối với dropdown, chỉ cần kiểm tra có giá trị được chọn không
-                    carInput.classList.add('border-red-500', 'border-2');
-                    rowIsValid = false;
-                }
-
-                if (!rowIsValid) {
-                    allRowsValid = false;
-                }
-            }
-
-            // Nếu có bất kỳ hàng nào không hợp lệ, dừng lại và thông báo
+                requiredFields.forEach(fieldName => {
+                    const input = row.querySelector(`[data-field="${fieldName}"]`);
+                    if (!input.value.trim()) {
+                        input.classList.add('border-red-500', 'border-2');
+                        rowIsValid = false;
+                    }
+                });
+                
+                if (!rowIsValid) allRowsValid = false;
+            });
+            
             if (!allRowsValid) {
-                showToast("Vui lòng điền đủ Tên KH, SĐT và Loại xe cho tất cả khách hàng.", false);
+                showToast("Vui lòng điền đủ các trường bắt buộc (*).", false);
                 setButtonLoading(submitBtn, false, originalBtnHtml);
                 return; 
             }
 
-            // --- BƯỚC 2: TỔNG HỢP DỮ LIỆU NẾU TẤT CẢ ĐỀU HỢP LỆ ---
             customerRows.forEach(row => {
                 newCustomers.push({
                     name: row.querySelector('[data-field="tenKhachHang"]').value.trim(),
@@ -554,17 +535,16 @@
                     color: row.querySelector('[data-field="mauXe"]').value,
                     channel: row.querySelector('[data-field="kenh"]').value,
                     source: row.querySelector('[data-field="nguon"]').value,
+                    note: row.querySelector('[data-field="ghiChu"]').value.trim()
                 });
             });
 
-            // Nếu không có khách hàng nào để thêm (trường hợp form trống)
             if (newCustomers.length === 0) {
                 showToast("Vui lòng nhập thông tin ít nhất một khách hàng.", false);
                 setButtonLoading(submitBtn, false, originalBtnHtml);
                 return;
             }
 
-            // --- BƯỚC 3: GỬI DỮ LIỆU ĐI ---
             try {
                 const res = await fetch(CRM_APPS_SCRIPT_URL, {
                     method: 'POST',
@@ -621,13 +601,9 @@
                 
                 window.handleGetResponse = (result) => {
                     if (result.status === 'SUCCESS') {
-                        // === THÊM SẮP XẾP TẠI ĐÂY ===
-                        // Sắp xếp dữ liệu theo ngày tạo, từ mới nhất đến cũ nhất
                         result.data.sort((a, b) => new Date(b.ngayTao) - new Date(a.ngayTao));
-
                         currentCustomers = result.data;
                         renderCustomerTable(currentCustomers);
-                        // Kích hoạt lại bộ lọc tìm kiếm trên dữ liệu mới
                         handleSearch(); 
                     } else { throw new Error(result.message); }
                     
@@ -646,16 +622,11 @@
 
         function handleSearch() {
             const searchInput = document.getElementById('search-input').value.toLowerCase().trim();
-            
-            // Tách chuỗi tìm kiếm thành các từ khóa riêng lẻ (ví dụ: "mg4 hot" -> ["mg4", "hot"])
             const keywords = searchInput.split(' ').filter(k => k.length > 0);
 
             const filtered = keywords.length > 0
                 ? currentCustomers.filter(customer => {
-                    // Điều kiện để một khách hàng được hiển thị:
-                    // Phải chứa TẤT CẢ các từ khóa người dùng nhập vào
                     return keywords.every(keyword => {
-                        // Mỗi từ khóa chỉ cần xuất hiện trong BẤT KỲ cột dữ liệu nào là được
                         const dateString = customer.ngayTao ? new Date(customer.ngayTao).toLocaleDateString('vi-VN') : '';
                         return (
                             dateString.includes(keyword) ||
@@ -668,7 +639,7 @@
                         );
                     });
                 })
-                : currentCustomers; // Nếu không có từ khóa nào, hiển thị tất cả
+                : currentCustomers;
 
             renderCustomerTable(filtered);
         }
@@ -679,7 +650,6 @@
             const countElement = document.getElementById('customer-count');
             
             const count = customers ? customers.length : 0;
-            // Thay đổi dòng dưới đây: bỏ dấu ngoặc
             countElement.textContent = count;
 
             tableBody.innerHTML = '';
@@ -734,10 +704,7 @@
             });
 
             populateSelect(editModal.querySelector('[data-field="loaiXe"]'), allDropdownData.loaiXe, customerData.loaiXe);
-            
-            // === THÊM DÒNG NÀY VÀO ===
             populateSelect(editModal.querySelector('[data-field="mauXe"]'), allDropdownData.mauXe, customerData.mauXe);
-
             populateSelect(editModal.querySelector('[data-field="kenh"]'), allDropdownData.kenh, customerData.kenh);
             populateSelect(editModal.querySelector('[data-field="nguon"]'), allDropdownData.nguon, customerData.nguon);
             populateSelect(editModal.querySelector('[data-field="trangThai"]'), allDropdownData.trangThai, customerData.trangThai);
@@ -821,7 +788,6 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Logic Menu & User Info ---
             const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
             if (!user) { window.location.href = 'index.html'; return; }
             
@@ -845,11 +811,15 @@
             document.getElementById('logout-button-desktop').addEventListener('click', logout);
             document.getElementById('logout-button-mobile').addEventListener('click', logout);
             
-            // ========== CODE CHO TRANG CRM ==========
+            // [CẬP NHẬT] Logic hiển thị nút Quản lý
+            const userDept = (user.department || '').trim().toLowerCase();
+            const isManager = (userDept === 'quản lý' || userDept.startsWith('m-'));
+            document.getElementById('quanly-nav-link-desktop').style.display = isManager ? 'block' : 'none';
+            document.getElementById('quanly-nav-link-mobile').style.display = isManager ? 'block' : 'none';
+
             document.getElementById('filter-btn').addEventListener('click', handleFilterCustomers);
             document.getElementById('search-input').addEventListener('input', handleSearch);
 
-            // Gán sự kiện cho modal Thêm mới
             const addModal = document.getElementById('add-modal');
             document.getElementById('open-add-modal-btn').addEventListener('click', () => { 
                 openModal(addModal); 
@@ -858,21 +828,18 @@
             document.getElementById('close-add-modal-btn').addEventListener('click', () => closeModal(addModal));
             document.getElementById('add-new-row-btn').addEventListener('click', addNewCustomerRow);
             document.getElementById('submit-add-btn').addEventListener('click', handleAddCustomers);
-            // Sử dụng event delegation cho nút xóa
             document.getElementById('add-customer-rows').addEventListener('click', function(e) {
                 if (e.target && e.target.classList.contains('remove-row-btn')) {
                     e.target.closest('.customer-row').remove();
                 }
             });
 
-            // Gán sự kiện cho modal Chỉnh sửa
             const editModal = document.getElementById('edit-modal');
             document.getElementById('close-edit-modal-btn').addEventListener('click', () => closeModal(editModal));
             document.getElementById('close-edit-modal-btn-footer').addEventListener('click', () => closeModal(editModal));
             document.getElementById('submit-update-btn').addEventListener('click', handleUpdateCustomer);
             initAutocomplete(document.querySelector('#edit-form-container .autocomplete-input'));
 
-            // Thiết lập ngày mặc định, tải dữ liệu nền và chạy filter lần đầu
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('start-date').value = today;
             document.getElementById('end-date').value = today;
