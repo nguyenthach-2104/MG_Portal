@@ -10,7 +10,13 @@
     <script src="config.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
-        body.modal-is-open { overflow: hidden; }
+        body.menu-is-open, body.modal-is-open { overflow: hidden; }
+        .burger-line { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
+        .menu-is-open .burger-line-middle { opacity: 0; }
+        .menu-is-open .burger-line-top { transform: translateY(8px) rotate(45deg); }
+        .menu-is-open .burger-line-bottom { transform: translateY(-8px) rotate(-45deg); }
+        #mobile-menu nav a { opacity: 0; transform: translateY(-10px); transition: opacity 0.3s ease-out, transform 0.3s ease-out; }
+        .menu-is-open #mobile-menu nav a { opacity: 1; transform: translateY(0); }
         .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
         .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
         .table-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
@@ -32,16 +38,60 @@
 
     <nav class="bg-white/80 backdrop-blur-md shadow-sm p-4 sticky top-0 z-40">
         <div class="container mx-auto flex justify-between items-center">
-             <a href="homepage.html" class="text-2xl font-bold text-red-600">MG<span class="text-gray-700">Portal</span></a>
-            <div class="hidden md:flex items-center space-x-4">
-                 <p id="user-name-nav" class="font-semibold text-gray-800"></p>
-                 <p id="user-department-nav" class="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full"></p>
-                 <button id="logout-button-desktop" title="Đăng xuất" class="text-gray-500 hover:text-red-600 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                 </button>
+            <a href="homepage.html" class="text-2xl font-bold text-red-600">MG<span class="text-gray-700">Portal</span></a>
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <a href="crm.html" class="text-gray-700 hover:text-red-600 transition-colors">Khách hàng</a>
+                <a href="khoxe.html" class="text-gray-700 hover:text-red-600 transition-colors">Kho xe</a>
+                <a href="ghepxe.html" class="text-gray-700 hover:text-red-600 transition-colors">Ghép xe</a>
+                <a href="vanban.html" class="text-gray-700 hover:text-red-600 transition-colors">Văn bản</a>
+                <a href="hoatdong.html" class="text-gray-700 hover:text-red-600 transition-colors">Hoạt động</a>
+                <a href="quanly.html" class="text-red-600 font-semibold transition-colors">Quản lý</a>
+                <div class="h-6 w-px bg-gray-200"></div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p id="user-name-nav" class="font-semibold text-gray-800 leading-tight">Tên NV</p>
+                        <p id="user-department-nav" class="text-xs text-gray-500 leading-tight">Phòng Ban</p>
+                    </div>
+                    <button id="logout-button-desktop" title="Đăng xuất" class="text-gray-500 hover:text-red-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="md:hidden">
+                <button id="burger-button" class="relative z-50 w-8 h-6 flex flex-col justify-between">
+                    <span class="burger-line burger-line-top block w-full h-0.5 bg-gray-700"></span>
+                    <span class="burger-line burger-line-middle block w-full h-0.5 bg-gray-700"></span>
+                    <span class="burger-line burger-line-bottom block w-full h-0.5 bg-gray-700"></span>
+                </button>
             </div>
         </div>
     </nav>
+
+    <div id="mobile-menu-container" class="fixed inset-0 z-50 pointer-events-none">
+        <div id="menu-overlay" class="absolute inset-0 bg-black bg-opacity-50 opacity-0 transition-opacity"></div>
+        <div id="mobile-menu" class="absolute top-0 right-0 h-full w-full max-w-xs bg-white shadow-xl transform translate-x-full transition-transform">
+            <div class="p-4 flex flex-col h-full">
+                <div class="pb-4 border-b">
+                    <p id="user-name-mobile" class="font-semibold text-lg">Tên NV</p>
+                    <p id="user-department-mobile" class="text-sm text-gray-500">Phòng Ban</p>
+                </div>
+                <nav class="flex flex-col space-y-6 text-xl mt-8">
+                    <a href="crm.html" class="text-gray-700 hover:text-red-600">Khách hàng</a>
+                    <a href="khoxe.html" class="text-gray-700 hover:text-red-600">Kho xe</a>
+                    <a href="ghepxe.html" class="text-gray-700 hover:text-red-600">Ghép xe</a>
+                    <a href="vanban.html" class="text-gray-700 hover:text-red-600">Văn bản</a>
+                    <a href="hoatdong.html" class="text-gray-700 hover:text-red-600">Hoạt động</a>
+                    <a href="quanly.html" class="text-red-600 font-medium">Quản lý</a>
+                </nav>
+                <div class="mt-auto">
+                    <button id="logout-button-mobile" class="w-full flex items-center space-x-3 text-gray-600 hover:text-red-600 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <main class="container mx-auto p-4 md:p-6">
         <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Báo cáo Dành cho Quản lý</h1>
@@ -151,7 +201,7 @@
             </div>
             <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4 text-sm">
                 <input type="hidden" id="view-row-index">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><p class="font-medium text-gray-500">Tên Khách Hàng</p><p id="view-tenKhachHang" class="text-gray-800 font-semibold"></p></div>
                     <div><p class="font-medium text-gray-500">Số Điện Thoại</p><p id="view-sdt" class="text-gray-800"></p></div>
                     <div><p class="font-medium text-gray-500">Nhân Viên Phụ Trách</p><p id="view-tenNhanVien" class="text-gray-800"></p></div>
@@ -251,7 +301,7 @@
                     if (result.status === 'SUCCESS') {
                         result.data.sort((a, b) => new Date(b.ngayTao) - new Date(a.ngayTao));
                         allManagerData = result.data;
-                        handleSearch(); // Lọc và hiển thị
+                        handleSearch(); 
                         processAndRenderStatistics(allManagerData);
                     } else { throw new Error(result.message); }
                     
@@ -298,7 +348,6 @@
             const userDept = user.department.trim().toLowerCase();
             const managerNoteHeader = document.getElementById('manager-note-header');
             
-            // Hiển thị/ẩn cột ghi chú quản lý
             if (userDept === 'quản lý') {
                 managerNoteHeader.textContent = 'Ghi chú QL';
                 managerNoteHeader.classList.remove('hidden');
@@ -323,11 +372,14 @@
                 const row = document.createElement('tr');
                 row.className = 'bg-white border-b';
                 
+                // [CẬP NHẬT] Giới hạn chiều rộng cột Ghi chú
+                const renderNoteCell = (note) => `<td class="px-6 py-4 max-w-[250px] truncate" title="${note || ''}">${note || ''}</td>`;
+                
                 let managerNoteCell = '';
                 if (userDept === 'quản lý') {
-                    managerNoteCell = `<td class="px-6 py-4">${customer.quanLyNote || ''}</td>`;
+                    managerNoteCell = renderNoteCell(customer.quanLyNote);
                 } else if (userDept.startsWith('m-')) {
-                    managerNoteCell = `<td class="px-6 py-4">${customer.mNote || ''}</td>`;
+                    managerNoteCell = renderNoteCell(customer.mNote);
                 }
                 
                 row.innerHTML = `
@@ -337,13 +389,12 @@
                     <td class="px-6 py-4">${customer.pkd || ''}</td>
                     <td class="px-6 py-4">${customer.loaiXe || ''}</td>
                     <td class="px-6 py-4">${customer.trangThai || ''}</td>
-                    <td class="px-6 py-4">${customer.ghiChu || ''}</td>
+                    ${renderNoteCell(customer.ghiChu)}
                     ${managerNoteCell}
                 `;
                 tableBody.appendChild(row);
             });
             
-            // Gán sự kiện click cho tên KH
             tableBody.querySelectorAll('.clickable-name').forEach(nameEl => {
                 nameEl.addEventListener('click', () => {
                     const rowIndex = parseInt(nameEl.dataset.rowIndex);
@@ -361,13 +412,11 @@
 
             document.getElementById('view-row-index').value = customer.rowIndex;
             
-            // Đổ dữ liệu vào các trường (chỉ đọc)
             const fields = ['tenKhachHang', 'sdt', 'tenNhanVien', 'pkd', 'loaiXe', 'trangThai'];
             fields.forEach(field => {
                 document.getElementById(`view-${field}`).textContent = customer[field] || 'N/A';
             });
             
-            // Hiển thị lịch sử ghi chú
             document.getElementById('view-notes-nv').textContent = customer.fullGhiChu || 'Chưa có ghi chú.';
             
             const managerNoteContainer = document.getElementById('view-notes-manager-container');
@@ -386,7 +435,7 @@
                 managerNoteContainer.style.display = 'none';
             }
             
-            document.getElementById('view-new-note').value = ''; // Xóa note cũ
+            document.getElementById('view-new-note').value = '';
             openModal(modal);
         }
 
@@ -425,7 +474,6 @@
                 if (result.status === 'SUCCESS') {
                     showToast(result.message, true);
                     closeModal(document.getElementById('view-modal'));
-                    // Fetch lại dữ liệu để cập nhật bảng
                     fetchManagerData(); 
                 } else { throw new Error(result.message); }
             } catch (error) {
@@ -441,7 +489,11 @@
             
             if (user.department.trim().toLowerCase() === 'quản lý') {
                 const departmentStats = data.reduce((acc, curr) => {
-                    const dept = curr.pkd || 'Chưa xác định';
+                    let dept = (curr.pkd || 'Chưa xác định').trim();
+                    // [CẬP NHẬT] Gộp M- vào phòng ban gốc
+                    if (dept.toLowerCase().startsWith('m-')) {
+                        dept = dept.substring(2).trim();
+                    }
                     acc[dept] = (acc[dept] || 0) + 1;
                     return acc;
                 }, {});
@@ -528,13 +580,27 @@
                 window.location.href = 'homepage.html';
                 return;
             }
+            
+            // [CẬP NHẬT] Logic Menu Di động
+            const burgerButton = document.getElementById('burger-button');
+            const menuOverlay = document.getElementById('menu-overlay');
+            const toggleMenu = () => {
+                document.body.classList.toggle('menu-is-open');
+                const isOpen = document.body.classList.contains('menu-is-open');
+                document.getElementById('mobile-menu-container').classList.toggle('pointer-events-none', !isOpen);
+                menuOverlay.classList.toggle('opacity-0', !isOpen);
+                document.getElementById('mobile-menu').classList.toggle('translate-x-full', !isOpen);
+            };
+            burgerButton.addEventListener('click', toggleMenu);
+            menuOverlay.addEventListener('click', toggleMenu);
 
-            document.getElementById('user-name-nav').textContent = user.fullName;
-            document.getElementById('user-department-nav').textContent = user.department;
-            document.getElementById('logout-button-desktop').addEventListener('click', () => {
-                sessionStorage.removeItem('loggedInUser');
-                window.location.href = 'index.html';
+            ['nav', 'mobile'].forEach(p => {
+                document.getElementById(`user-name-${p}`).textContent = user.fullName || 'Chưa có tên';
+                document.getElementById(`user-department-${p}`).textContent = user.department || 'Chưa có phòng ban';
             });
+            const logout = () => { sessionStorage.removeItem('loggedInUser'); window.location.href = 'index.html'; };
+            document.getElementById('logout-button-desktop').addEventListener('click', logout);
+            document.getElementById('logout-button-mobile').addEventListener('click', logout);
             
             document.getElementById('filter-btn').addEventListener('click', fetchManagerData);
             document.getElementById('search-input').addEventListener('input', handleSearch);
@@ -571,16 +637,22 @@
                 });
             });
             
-            // Sự kiện cho modal xem chi tiết
             const viewModal = document.getElementById('view-modal');
             document.getElementById('close-view-modal-btn').addEventListener('click', () => closeModal(viewModal));
             document.getElementById('close-view-modal-btn-footer').addEventListener('click', () => closeModal(viewModal));
             document.getElementById('submit-note-btn').addEventListener('click', handleAddManagerNote);
 
-            const today = new Date();
-            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            document.getElementById('start-date').value = firstDayOfMonth.toISOString().split('T')[0];
-            document.getElementById('end-date').value = today.toISOString().split('T')[0];
+            // [CẬP NHẬT] Thiết lập ngày mặc định là hôm nay (GMT+7)
+            const getVietnamToday = () => {
+                const now = new Date();
+                const offset = 7; // Vietnam is UTC+7
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                const vietnamTime = new Date(utc + (3600000 * offset));
+                return vietnamTime.toISOString().split('T')[0];
+            };
+            const today = getVietnamToday();
+            document.getElementById('start-date').value = today;
+            document.getElementById('end-date').value = today;
             
             fetchManagerData();
         });
