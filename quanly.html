@@ -10,6 +10,7 @@
     <script src="config.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; }
+        body.modal-is-open { overflow: hidden; }
         .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
         .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
         .table-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
@@ -21,6 +22,10 @@
         .sortable-header:hover { color: #DC2626; }
         .sort-asc::after { content: ' ▲'; font-size: 0.8em; }
         .sort-desc::after { content: ' ▼'; font-size: 0.8em; }
+        .clickable-name:hover { color: #DC2626; text-decoration: underline; cursor: pointer; }
+        .modal-overlay { transition: opacity 0.3s ease-in-out; }
+        .modal-content { transition: transform 0.3s ease-in-out; }
+        .note-timeline { white-space: pre-wrap; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -39,12 +44,10 @@
     </nav>
     
     <main class="container mx-auto p-4 md:p-6">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
-            Báo cáo Dành cho Quản lý
-        </h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Báo cáo Dành cho Quản lý</h1>
 
         <div class="mb-6 p-4 bg-white rounded-lg shadow-sm">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                 <div>
                     <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
                     <input type="date" id="start-date" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500">
@@ -53,7 +56,14 @@
                     <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
                     <input type="date" id="end-date" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500">
                 </div>
-                <div class="sm:col-span-2 lg:col-span-2">
+                <div class="lg:col-span-2">
+                    <label for="search-input" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg></div>
+                        <input type="text" id="search-input" placeholder="Tên KH, SĐT, xe, nhân viên..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+                    </div>
+                </div>
+                <div class="sm:col-span-2 lg:col-span-1">
                     <button id="filter-btn" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center gap-2">
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h18M7 8v8m10-8v8M4 12h16m-7 4h-2"></path></svg>
                         <span>Xem báo cáo</span>
@@ -93,6 +103,8 @@
                                     <th class="px-6 py-3">Phòng ban</th>
                                     <th class="px-6 py-3">Loại xe</th>
                                     <th class="px-6 py-3">Trạng thái</th>
+                                    <th class="px-6 py-3">Ghi chú NV</th>
+                                    <th id="manager-note-header" class="px-6 py-3 hidden">Ghi chú QL</th>
                                 </tr>
                             </thead>
                             <tbody id="customer-table-body"></tbody>
@@ -104,9 +116,11 @@
 
             <div id="tab-stats" class="tab-content">
                 <div class="space-y-6">
-                    <div id="chart-container" class="bg-white rounded-lg shadow-md p-4 hidden">
+                    <div id="chart-container-wrapper" class="bg-white rounded-lg shadow-md p-4 hidden">
                         <h2 class="font-bold text-lg mb-4">So sánh hiệu suất các Phòng ban</h2>
-                        <canvas id="department-chart"></canvas>
+                        <div id="chart-container" style="position: relative; height:40vh; width:100%;">
+                            <canvas id="department-chart"></canvas>
+                        </div>
                     </div>
                     <div class="bg-white rounded-lg shadow-md p-4">
                          <h2 class="font-bold text-lg mb-4">Thống kê hiệu suất Nhân viên</h2>
@@ -127,6 +141,50 @@
             </div>
         </div>
     </main>
+    
+    <div id="view-modal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-content bg-white rounded-lg shadow-xl m-4 sm:mx-auto sm:w-full sm:max-w-3xl transform scale-95 relative">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">Chi tiết Khách hàng (Chỉ xem)</h3>
+                <button id="close-view-modal-btn" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4 text-sm">
+                <input type="hidden" id="view-row-index">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><p class="font-medium text-gray-500">Tên Khách Hàng</p><p id="view-tenKhachHang" class="text-gray-800 font-semibold"></p></div>
+                    <div><p class="font-medium text-gray-500">Số Điện Thoại</p><p id="view-sdt" class="text-gray-800"></p></div>
+                    <div><p class="font-medium text-gray-500">Nhân Viên Phụ Trách</p><p id="view-tenNhanVien" class="text-gray-800"></p></div>
+                    <div><p class="font-medium text-gray-500">Phòng Ban</p><p id="view-pkd" class="text-gray-800"></p></div>
+                    <div><p class="font-medium text-gray-500">Loại Xe</p><p id="view-loaiXe" class="text-gray-800"></p></div>
+                    <div><p class="font-medium text-gray-500">Trạng Thái</p><p id="view-trangThai" class="text-gray-800"></p></div>
+                 </div>
+                 <hr/>
+                <div>
+                    <p class="font-semibold mb-2">Lịch sử Ghi chú</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block font-medium text-gray-600">Ghi chú của Nhân viên</label>
+                            <div id="view-notes-nv" class="note-timeline p-2 bg-gray-50 border rounded-md max-h-32 overflow-y-auto"></div>
+                        </div>
+                        <div id="view-notes-manager-container">
+                             <label id="view-notes-manager-label" class="block font-medium text-gray-600">Ghi chú của Quản lý</label>
+                             <div id="view-notes-manager" class="note-timeline p-2 bg-gray-50 border rounded-md max-h-32 overflow-y-auto"></div>
+                        </div>
+                    </div>
+                </div>
+                 <hr/>
+                <div>
+                    <label for="view-new-note" class="block font-semibold mb-2">Thêm ghi chú của bạn</label>
+                    <textarea id="view-new-note" rows="3" class="w-full border-gray-300 rounded-md" placeholder="Nhập ghi chú mới..."></textarea>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 flex justify-end gap-3">
+                <button id="close-view-modal-btn-footer" class="bg-white border border-gray-300 py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-50">Đóng</button>
+                <button id="submit-note-btn" class="bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-red-700 flex items-center justify-center">Lưu Ghi chú</button>
+            </div>
+        </div>
+    </div>
 
     <div id="toast" class="fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none"></div>
 
@@ -135,8 +193,16 @@
         let allManagerData = [];
         let departmentChartInstance = null;
         let currentSort = { column: 'customerCount', order: 'desc' };
-
+        
         // === CÁC HÀM TIỆN ÍCH ===
+        const openModal = (modalEl) => {
+            modalEl.classList.remove('hidden');
+            document.body.classList.add('modal-is-open');
+        };
+        const closeModal = (modalEl) => {
+            modalEl.classList.add('hidden');
+            document.body.classList.remove('modal-is-open');
+        };
         const showToast = (message, isSuccess = true) => {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -172,9 +238,9 @@
             
             try {
                 const params = new URLSearchParams({
-                    action: 'getManagerData', // Action mới
+                    action: 'getManagerData',
                     startDate: startDate, endDate: endDate,
-                    user: JSON.stringify(user), // Gửi thông tin user lên server
+                    user: JSON.stringify(user),
                     callback: 'handleManagerResponse'
                 });
                 
@@ -183,10 +249,10 @@
                 
                 window.handleManagerResponse = (result) => {
                     if (result.status === 'SUCCESS') {
-                        // Sắp xếp dữ liệu theo ngày tạo, từ mới nhất đến cũ nhất
                         result.data.sort((a, b) => new Date(b.ngayTao) - new Date(a.ngayTao));
                         allManagerData = result.data;
-                        renderAllTabs(allManagerData);
+                        handleSearch(); // Lọc và hiển thị
+                        processAndRenderStatistics(allManagerData);
                     } else { throw new Error(result.message); }
                     
                     document.body.removeChild(script);
@@ -202,22 +268,53 @@
             }
         }
         
-        function renderAllTabs(data) {
-            renderCustomerTable(data);
-            processAndRenderStatistics(data);
+        function handleSearch() {
+            const searchInput = document.getElementById('search-input').value.toLowerCase().trim();
+            const keywords = searchInput.split(' ').filter(k => k.length > 0);
+
+            const filtered = keywords.length > 0
+                ? allManagerData.filter(customer => {
+                    return keywords.every(keyword => {
+                        return (
+                            String(customer.tenKhachHang || '').toLowerCase().includes(keyword) ||
+                            String(customer.sdt || '').toLowerCase().includes(keyword) ||
+                            String(customer.tenNhanVien || '').toLowerCase().includes(keyword) ||
+                            String(customer.pkd || '').toLowerCase().includes(keyword) ||
+                            String(customer.loaiXe || '').toLowerCase().includes(keyword) ||
+                            String(customer.trangThai || '').toLowerCase().includes(keyword) ||
+                            String(customer.ghiChu || '').toLowerCase().includes(keyword)
+                        );
+                    });
+                })
+                : allManagerData; 
+            renderCustomerTable(filtered);
         }
 
         function renderCustomerTable(customers) {
             const tableBody = document.getElementById('customer-table-body');
             const statusMessage = document.getElementById('status-message');
             const countElement = document.getElementById('customer-count');
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            const userDept = user.department.trim().toLowerCase();
+            const managerNoteHeader = document.getElementById('manager-note-header');
+            
+            // Hiển thị/ẩn cột ghi chú quản lý
+            if (userDept === 'quản lý') {
+                managerNoteHeader.textContent = 'Ghi chú QL';
+                managerNoteHeader.classList.remove('hidden');
+            } else if (userDept.startsWith('m-')) {
+                managerNoteHeader.textContent = 'Ghi chú M-';
+                managerNoteHeader.classList.remove('hidden');
+            } else {
+                managerNoteHeader.classList.add('hidden');
+            }
             
             countElement.textContent = `(${customers.length})`;
             tableBody.innerHTML = '';
 
             if (!customers || customers.length === 0) {
                 statusMessage.style.display = 'block';
-                statusMessage.textContent = 'Không có dữ liệu trong khoảng thời gian đã chọn.';
+                statusMessage.textContent = 'Không có dữ liệu phù hợp.';
                 return;
             }
 
@@ -225,36 +322,135 @@
             customers.forEach(customer => {
                 const row = document.createElement('tr');
                 row.className = 'bg-white border-b';
+                
+                let managerNoteCell = '';
+                if (userDept === 'quản lý') {
+                    managerNoteCell = `<td class="px-6 py-4">${customer.quanLyNote || ''}</td>`;
+                } else if (userDept.startsWith('m-')) {
+                    managerNoteCell = `<td class="px-6 py-4">${customer.mNote || ''}</td>`;
+                }
+                
                 row.innerHTML = `
                     <td class="px-6 py-4">${new Date(customer.ngayTao).toLocaleDateString('vi-VN')}</td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${customer.tenKhachHang || ''}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap clickable-name" data-row-index="${customer.rowIndex}">${customer.tenKhachHang || ''}</td>
                     <td class="px-6 py-4">${customer.tenNhanVien || ''}</td>
                     <td class="px-6 py-4">${customer.pkd || ''}</td>
                     <td class="px-6 py-4">${customer.loaiXe || ''}</td>
                     <td class="px-6 py-4">${customer.trangThai || ''}</td>
+                    <td class="px-6 py-4">${customer.ghiChu || ''}</td>
+                    ${managerNoteCell}
                 `;
                 tableBody.appendChild(row);
             });
+            
+            // Gán sự kiện click cho tên KH
+            tableBody.querySelectorAll('.clickable-name').forEach(nameEl => {
+                nameEl.addEventListener('click', () => {
+                    const rowIndex = parseInt(nameEl.dataset.rowIndex);
+                    const customerData = allManagerData.find(c => c.rowIndex === rowIndex);
+                    if (customerData) openViewModal(customerData);
+                });
+            });
+        }
+        
+        // === LOGIC MODAL XEM CHI TIẾT & THÊM NOTE ===
+        function openViewModal(customer) {
+            const modal = document.getElementById('view-modal');
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            const userDept = user.department.trim().toLowerCase();
+
+            document.getElementById('view-row-index').value = customer.rowIndex;
+            
+            // Đổ dữ liệu vào các trường (chỉ đọc)
+            const fields = ['tenKhachHang', 'sdt', 'tenNhanVien', 'pkd', 'loaiXe', 'trangThai'];
+            fields.forEach(field => {
+                document.getElementById(`view-${field}`).textContent = customer[field] || 'N/A';
+            });
+            
+            // Hiển thị lịch sử ghi chú
+            document.getElementById('view-notes-nv').textContent = customer.fullGhiChu || 'Chưa có ghi chú.';
+            
+            const managerNoteContainer = document.getElementById('view-notes-manager-container');
+            const managerNoteLabel = document.getElementById('view-notes-manager-label');
+            const managerNoteContent = document.getElementById('view-notes-manager');
+
+            if (userDept === 'quản lý') {
+                managerNoteContainer.style.display = 'block';
+                managerNoteLabel.textContent = 'Ghi chú của Quản lý';
+                managerNoteContent.textContent = customer.fullQuanLyNote || 'Chưa có ghi chú.';
+            } else if (userDept.startsWith('m-')) {
+                managerNoteContainer.style.display = 'block';
+                managerNoteLabel.textContent = 'Ghi chú của Manager';
+                managerNoteContent.textContent = customer.fullMNote || 'Chưa có ghi chú.';
+            } else {
+                managerNoteContainer.style.display = 'none';
+            }
+            
+            document.getElementById('view-new-note').value = ''; // Xóa note cũ
+            openModal(modal);
+        }
+
+        async function handleAddManagerNote() {
+            const submitBtn = document.getElementById('submit-note-btn');
+            const originalBtnHtml = submitBtn.innerHTML;
+            setButtonLoading(submitBtn, true, originalBtnHtml);
+            
+            const rowIndex = document.getElementById('view-row-index').value;
+            const newNote = document.getElementById('view-new-note').value.trim();
+
+            if (!newNote) {
+                showToast("Vui lòng nhập nội dung ghi chú.", false);
+                setButtonLoading(submitBtn, false, originalBtnHtml);
+                return;
+            }
+            
+            const payload = {
+                action: 'addManagerNote',
+                data: {
+                    rowIndex: parseInt(rowIndex),
+                    newNote: newNote,
+                    userInfo: JSON.parse(sessionStorage.getItem('loggedInUser'))
+                }
+            };
+            
+            try {
+                const res = await fetch(CRM_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error(`Lỗi mạng: ${res.statusText}`);
+                const result = await res.json();
+
+                if (result.status === 'SUCCESS') {
+                    showToast(result.message, true);
+                    closeModal(document.getElementById('view-modal'));
+                    // Fetch lại dữ liệu để cập nhật bảng
+                    fetchManagerData(); 
+                } else { throw new Error(result.message); }
+            } catch (error) {
+                showToast(`Lỗi: ${error.message}`, false);
+            } finally {
+                setButtonLoading(submitBtn, false, originalBtnHtml);
+            }
         }
         
         // === LOGIC TAB THỐNG KÊ ===
         function processAndRenderStatistics(data) {
             const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
             
-            // 1. Thống kê theo phòng ban (chỉ cho 'quản lý')
             if (user.department.trim().toLowerCase() === 'quản lý') {
                 const departmentStats = data.reduce((acc, curr) => {
                     const dept = curr.pkd || 'Chưa xác định';
                     acc[dept] = (acc[dept] || 0) + 1;
                     return acc;
                 }, {});
-                document.getElementById('chart-container').style.display = 'block';
+                document.getElementById('chart-container-wrapper').style.display = 'block';
                 renderDepartmentChart(departmentStats);
             } else {
-                 document.getElementById('chart-container').style.display = 'none';
+                 document.getElementById('chart-container-wrapper').style.display = 'none';
             }
 
-            // 2. Thống kê theo nhân viên
             const employeeStats = data.reduce((acc, curr) => {
                 const empName = curr.tenNhanVien || 'Chưa xác định';
                 if (!acc[empName]) {
@@ -276,22 +472,16 @@
             const labels = Object.keys(stats);
             const data = Object.values(stats);
 
-            if (departmentChartInstance) {
-                departmentChartInstance.destroy();
-            }
+            if (departmentChartInstance) departmentChartInstance.destroy();
 
             departmentChartInstance = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Số KHTN',
-                        data: data,
-                        backgroundColor: 'rgba(220, 38, 38, 0.6)',
-                        borderColor: 'rgba(220, 38, 38, 1)',
-                        borderWidth: 1
-                    }]
-                },
+                data: { labels: labels, datasets: [{
+                    label: 'Số KHTN', data: data,
+                    backgroundColor: 'rgba(220, 38, 38, 0.6)',
+                    borderColor: 'rgba(220, 38, 38, 1)',
+                    borderWidth: 1
+                }]},
                 options: {
                     scales: { y: { beginAtZero: true } },
                     responsive: true,
@@ -301,22 +491,12 @@
         }
         
         function renderStatsTable(statsData) {
-            // Sắp xếp dữ liệu trước khi render
             statsData.sort((a, b) => {
-                const valA = a[currentSort.column];
-                const valB = b[currentSort.column];
-                
-                let comparison = 0;
-                if (typeof valA === 'number' && typeof valB === 'number') {
-                    comparison = valA - valB;
-                } else {
-                    comparison = String(valA).localeCompare(String(valB));
-                }
-                
+                const valA = a[currentSort.column], valB = b[currentSort.column];
+                let comparison = (typeof valA === 'number') ? valA - valB : String(valA).localeCompare(String(valB));
                 return currentSort.order === 'asc' ? comparison : -comparison;
             });
 
-            // Render bảng
             const tableBody = document.getElementById('stats-table-body');
             tableBody.innerHTML = '';
             statsData.forEach(item => {
@@ -330,7 +510,6 @@
                 tableBody.appendChild(row);
             });
             
-            // Cập nhật giao diện header
             document.querySelectorAll('.sortable-header').forEach(header => {
                 header.classList.remove('sort-asc', 'sort-desc');
                 if (header.dataset.sort === currentSort.column) {
@@ -341,7 +520,6 @@
         
         // === KHỞI TẠO & GÁN SỰ KIỆN ===
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Logic xác thực & User Info ---
             const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
             if (!user) { window.location.href = 'index.html'; return; }
             
@@ -358,10 +536,9 @@
                 window.location.href = 'index.html';
             });
             
-            // --- Gán sự kiện cho các nút ---
             document.getElementById('filter-btn').addEventListener('click', fetchManagerData);
+            document.getElementById('search-input').addEventListener('input', handleSearch);
             
-            // --- Logic chuyển Tab ---
             document.getElementById('tab-buttons').addEventListener('click', (e) => {
                 if (e.target.matches('.tab-button')) {
                     const tabId = e.target.dataset.tab;
@@ -372,42 +549,34 @@
                 }
             });
             
-            // --- Logic Copy bảng ---
             document.getElementById('copy-btn').addEventListener('click', () => {
                 const table = document.getElementById('customer-table');
-                let dataString = '';
-                // Lấy header
-                const headers = [...table.querySelectorAll('thead th')].map(th => th.innerText).join('\t');
-                dataString += headers + '\n';
-                // Lấy body
+                let dataString = [...table.querySelectorAll('thead th')].map(th => th.innerText).join('\t') + '\n';
                 table.querySelectorAll('tbody tr').forEach(row => {
-                    const rowData = [...row.querySelectorAll('td')].map(td => td.innerText).join('\t');
-                    dataString += rowData + '\n';
+                    dataString += [...row.querySelectorAll('td')].map(td => td.innerText).join('\t') + '\n';
                 });
-                
-                navigator.clipboard.writeText(dataString).then(() => {
-                    showToast('Đã copy dữ liệu vào clipboard!', true);
-                }, () => {
-                    showToast('Copy thất bại!', false);
-                });
+                navigator.clipboard.writeText(dataString).then(() => showToast('Đã copy dữ liệu!', true), () => showToast('Copy thất bại!', false));
             });
 
-            // --- Logic Sắp xếp bảng Thống kê ---
             document.querySelectorAll('.sortable-header').forEach(header => {
                 header.addEventListener('click', () => {
                     const column = header.dataset.sort;
                     if (currentSort.column === column) {
-                        currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+                        currentSort.order = (currentSort.order === 'asc' ? 'desc' : 'asc');
                     } else {
                         currentSort.column = column;
-                        currentSort.order = 'desc'; // Mặc định sắp xếp giảm dần khi chọn cột mới
+                        currentSort.order = 'desc';
                     }
-                    // Dùng dữ liệu đã có để sắp xếp lại, không cần fetch lại
                     processAndRenderStatistics(allManagerData); 
                 });
             });
+            
+            // Sự kiện cho modal xem chi tiết
+            const viewModal = document.getElementById('view-modal');
+            document.getElementById('close-view-modal-btn').addEventListener('click', () => closeModal(viewModal));
+            document.getElementById('close-view-modal-btn-footer').addEventListener('click', () => closeModal(viewModal));
+            document.getElementById('submit-note-btn').addEventListener('click', handleAddManagerNote);
 
-            // --- Thiết lập mặc định & tải lần đầu ---
             const today = new Date();
             const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
             document.getElementById('start-date').value = firstDayOfMonth.toISOString().split('T')[0];
