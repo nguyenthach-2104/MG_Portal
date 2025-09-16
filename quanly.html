@@ -6,6 +6,7 @@
     <title>Trang Quản lý - MG Bình Dương</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="config.js"></script>
     <style>
@@ -372,7 +373,6 @@
                 const row = document.createElement('tr');
                 row.className = 'bg-white border-b';
                 
-                // [CẬP NHẬT] Giới hạn chiều rộng cột Ghi chú
                 const renderNoteCell = (note) => `<td class="px-6 py-4 max-w-[250px] truncate" title="${note || ''}">${note || ''}</td>`;
                 
                 let managerNoteCell = '';
@@ -490,7 +490,6 @@
             if (user.department.trim().toLowerCase() === 'quản lý') {
                 const departmentStats = data.reduce((acc, curr) => {
                     let dept = (curr.pkd || 'Chưa xác định').trim();
-                    // [CẬP NHẬT] Gộp M- vào phòng ban gốc
                     if (dept.toLowerCase().startsWith('m-')) {
                         dept = dept.substring(2).trim();
                     }
@@ -528,16 +527,38 @@
 
             departmentChartInstance = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: labels, datasets: [{
-                    label: 'Số KHTN', data: data,
-                    backgroundColor: 'rgba(220, 38, 38, 0.6)',
-                    borderColor: 'rgba(220, 38, 38, 1)',
-                    borderWidth: 1
-                }]},
+                data: { 
+                    labels: labels, 
+                    datasets: [{
+                        label: 'Số KHTN', 
+                        data: data,
+                        backgroundColor: 'rgba(220, 38, 38, 0.6)',
+                        borderColor: 'rgba(220, 38, 38, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                // [CẬP NHẬT] Thêm cấu hình cho plugin datalabels
                 options: {
-                    scales: { y: { beginAtZero: true } },
+                    scales: { 
+                        y: { beginAtZero: true } 
+                    },
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }, // Ẩn chú thích 'Số KHTN' để gọn hơn
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#1f2937', // Màu xám đậm
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
+                            formatter: (value) => {
+                                return value > 0 ? value : ''; // Chỉ hiện số lớn hơn 0
+                            }
+                        }
+                    }
                 }
             });
         }
@@ -572,6 +593,9 @@
         
         // === KHỞI TẠO & GÁN SỰ KIỆN ===
         document.addEventListener('DOMContentLoaded', () => {
+            // [CẬP NHẬT] Đăng ký plugin datalabels một lần duy nhất
+            Chart.register(ChartDataLabels);
+
             const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
             if (!user) { window.location.href = 'index.html'; return; }
             
@@ -581,7 +605,6 @@
                 return;
             }
             
-            // [CẬP NHẬT] Logic Menu Di động
             const burgerButton = document.getElementById('burger-button');
             const menuOverlay = document.getElementById('menu-overlay');
             const toggleMenu = () => {
@@ -642,10 +665,9 @@
             document.getElementById('close-view-modal-btn-footer').addEventListener('click', () => closeModal(viewModal));
             document.getElementById('submit-note-btn').addEventListener('click', handleAddManagerNote);
 
-            // [CẬP NHẬT] Thiết lập ngày mặc định là hôm nay (GMT+7)
             const getVietnamToday = () => {
                 const now = new Date();
-                const offset = 7; // Vietnam is UTC+7
+                const offset = 7; 
                 const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
                 const vietnamTime = new Date(utc + (3600000 * offset));
                 return vietnamTime.toISOString().split('T')[0];
